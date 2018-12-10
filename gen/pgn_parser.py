@@ -13,9 +13,13 @@ def board2array(board):
     os.remove('tmp.png')
     return image
 
+def board2vector(board):
+    array = numpy.array(board2array(board))
+    return array.flatten()
 
-def board2png(board, filename, size=None):
-    svg = SVG(chess.svg.board(board=board, size=size))
+
+def board2png(board, filename, size=None, coordinates=False):
+    svg = SVG(chess.svg.board(board=board, size=size, coordinates=coordinates))
     svg2png(svg.data, write_to=filename)
 
 
