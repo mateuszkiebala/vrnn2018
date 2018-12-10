@@ -77,7 +77,7 @@ def generateRandomGame(board, gameNumber, moveNumber):
         nonLegalBoard = board.copy()
         nonLegalBoard.push(notLegalMoves.pop())
 
-        resultVector.append(getBoardsVector(board, nonLegalBoard))
+        resultBoards.append(getBoardsVector(board, nonLegalBoard))
         resultVector.append(0)
 
         board2png(board, BAD_GAMES_IMG_PATH + str(gameNumber) + "/" + str(moveNumber) + ".png")
@@ -88,7 +88,7 @@ def generateRandomGame(board, gameNumber, moveNumber):
     nextBoard = board.copy()
     nextBoard.push_uci(str(nextMove))
 
-    resultVector.append(getBoardsVector(board, nextBoard))
+    resultBoards.append(getBoardsVector(board, nextBoard))
     resultVector.append(1)
 
     generateRandomGame(nextBoard, gameNumber, moveNumber + 1)
@@ -106,7 +106,7 @@ for i in range(GAMES_NUM):
         os.makedirs(GAMES_ARR_PATH + str(i))
 
     np.save(GAMES_ARR_PATH + str(i) + "/boards.npy", np.array(resultBoards))
-    np.save(GAMES_ARR_PATH + str(i) + "/results.npy", np.array(resultBoards))
+    np.save(GAMES_ARR_PATH + str(i) + "/results.npy", np.array(resultVector))
 
 
 
