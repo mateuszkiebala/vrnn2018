@@ -1,7 +1,6 @@
 import keras, argparse
 from keras.models import Model, Input
-from keras.layers import Dense, Dropout, Flatten, Add
-from keras.layers import Conv2D, MaxPooling2D
+from keras.layers import Dense, Dropout, Flatten, Add, Conv2D, MaxPooling2D, ZeroPadding2D, AveragePooling2D, BatchNormalization, Activation
 from keras import backend as K
 from preprocess import Dataset
 from common.constants import DEFAULT_IMAGE_SIZE
@@ -11,7 +10,7 @@ num_classes = 2 # 0 or 1
 input_shape = (DEFAULT_IMAGE_SIZE, DEFAULT_IMAGE_SIZE, 3)
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--batches', type=int, default=128, help='Number of batches')
+parser.add_argument('--batches', type=int, default=64, help='Number of batches')
 parser.add_argument('--epochs', type=int, default=10, help='Number of epochs')
 args = parser.parse_args()
 
@@ -27,22 +26,35 @@ print(x_train_2.shape)
 
 def half_model():
     input = Input(shape=input_shape)
-    model = Conv2D(32, kernel_size=(3, 3), activation='relu')(input)
+    model = ZeroPadding2D((3, 3))(input)
     model = Conv2D(64, (3, 3), activation='relu')(model)
-    model = MaxPooling2D(pool_size=(2, 2))(model)
+    model = BatchNormalization(axis=3)(model)
+    model = Activation('relu')(model)
+    model = MaxPooling2D((3, 3))(model)
+    model = Conv2D(128, (3, 3), activation='relu')(model)
+    model = MaxPooling2D((3, 3))(model)
+    model = Conv2D(256, (3, 3), activation='relu')(model)
+    model = BatchNormalization(axis=3)(model)
+    model = Activation('relu')(model)
+    model = MaxPooling2D((3, 3))(model)
+    model = Conv2D(512, (3, 3), activation='relu')(model)
+    model = MaxPooling2D((3, 3))(model)
+    # model = AveragePooling2D((6, 6), name='avg_pool')(model)
     model = Dropout(.25)(model)
     model = Flatten()(model)
-    model = Dense(128, activation='relu')(model)
-    model = Dropout(.5)(model)
     return Model(inputs=input, outputs=model)
 
 before_model = half_model()
 after_model = half_model()
 
 merged_model = Add()([before_model.output, after_model.output])
-merged_model = Dense(64, activation='relu')(merged_model)
+merged_model = Dense(512, activation='relu')(merged_model)
 merged_model = Dropout(.25)(merged_model)
-merged_model = Dense(32, activation='relu')(merged_model)
+merged_model = Dense(256, activation='relu')(merged_model)
+merged_model = Dropout(.25)(merged_model)
+merged_model = Dense(128, activation='relu')(merged_model)
+merged_model = Dropout(.25)(merged_model)
+merged_model = Dense(64, activation='relu')(merged_model)
 merged_model = Dropout(.25)(merged_model)
 merged_model = Dense(num_classes, activation='softmax')(merged_model)
 

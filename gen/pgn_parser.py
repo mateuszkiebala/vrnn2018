@@ -1,4 +1,4 @@
-import os, chess
+import os, chess, uuid
 import numpy as np
 from chess import svg, pgn
 from cairosvg import svg2png
@@ -15,9 +15,10 @@ def board2png(board, name, size=DEFAULT_IMAGE_SIZE, coordinates=False):
 
 # Returns numpy array from given board
 def board2array(board):
-    board2png(board, '/tmp/tmp.png')
-    image = misc.imread('/tmp/tmp.png')
-    os.remove('/tmp/tmp.png')
+    unique_filename = '/tmp/'+str(uuid.uuid4())+'.png'
+    board2png(board, unique_filename)
+    image = misc.imread(unique_filename)
+    os.remove(unique_filename)
     return image
 
 def board2vector(board):
