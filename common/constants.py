@@ -1,9 +1,11 @@
 from os import path
 
-GOOD_GAMES_IMG_PATH = "../games/images/good/"
-BAD_GAMES_IMG_PATH = "../games/images/bad/"
+file_path = path.dirname(path.abspath(__file__))
 
-GAMES_ARR_PATH = "../games/dataset/"
+GOOD_GAMES_IMG_PATH = path.join(file_path, "../games/images/good/")
+BAD_GAMES_IMG_PATH = path.join(file_path, "../games/images/bad/")
+
+GAMES_ARR_PATH = path.join(file_path, "../dataset/")
 BOARDS_FILE_NAME = "boards.npy"
 RESULTS_FILE_NAME = "results.npy"
 

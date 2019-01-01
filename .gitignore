@@ -116,4 +116,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
->>>>>>> 64ec0b7d52d70a39925d4c8db02c9f59f5b84260
+
+dataset/
+games/

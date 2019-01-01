@@ -1,28 +1,28 @@
-import os, chess, numpy
+import os, chess
+import numpy as np
 from chess import svg, pgn
 from cairosvg import svg2png
 from scipy import misc
 from IPython.display import SVG
 from common.constants import DEFAULT_IMAGE_SIZE
 
-numpy.set_printoptions(threshold=numpy.nan)
+np.set_printoptions(threshold=np.nan)
 
+# Saves board to png with provided name and size
+def board2png(board, name, size=DEFAULT_IMAGE_SIZE, coordinates=False):
+    svg = SVG(chess.svg.board(board=board, size=size, coordinates=coordinates))
+    svg2png(svg.data, write_to=name)
 
+# Returns numpy array from given board
 def board2array(board):
-    board2png(board, 'tmp.png')
-    image = misc.imread('tmp.png')
-    os.remove('tmp.png')
+    board2png(board, '/tmp/tmp.png')
+    image = misc.imread('/tmp/tmp.png')
+    os.remove('/tmp/tmp.png')
     return image
 
 def board2vector(board):
-    array = numpy.array(board2array(board))
+    array = np.array(board2array(board))
     return array.flatten()
-
-
-def board2png(board, filename, size=DEFAULT_IMAGE_SIZE, coordinates=False):
-    svg = SVG(chess.svg.board(board=board, size=size, coordinates=coordinates))
-    svg2png(svg.data, write_to=filename)
-
 
 def pgn2board(pgn_game, directory):
     board = pgn_game.board()

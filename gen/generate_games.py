@@ -1,6 +1,6 @@
 import numpy as np
 import os, chess, random, copy, time, argparse
-from gen.generate_games import board2png, board2array, board2vector
+from pgn_parser import board2png, board2array
 from common.constants import *
 
 parser = argparse.ArgumentParser()
@@ -13,7 +13,7 @@ result_boards = []
 result_vector = []
 
 def boards_vector(prev_board, next_board):
-    return np.concatenate([board2vector(prev_board), board2vector(next_board)])
+    return np.array([board2array(prev_board), board2array(next_board)])
 
 def end_reason(board, move_number):
     move_prefix = "[" + str(move_number) + "] "
@@ -52,7 +52,7 @@ def generate_random_game(board, game_number, move_number, save_png=False):
     if move_number % 10 == 0:
         print("Game: " + str(game_number) + ", Move: " + str(move_number))
 
-    if board.is_game_over():
+    if board.is_game_over() or (move_number > args.maxmoves):
         print(end_reason(board, move_number))
         return
 
@@ -64,7 +64,7 @@ def generate_random_game(board, game_number, move_number, save_png=False):
         non_legal_board.push(non_legal_moves.pop())
 
         result_boards.append(boards_vector(board, non_legal_board))
-        result_vector.append(0)
+        result_vector.append([0, 1])
 
         if save_png:
             board2png(board, BAD_GAMES_IMG_PATH + str(game_number) + "/" + str(move_number) + ".png")
@@ -75,7 +75,7 @@ def generate_random_game(board, game_number, move_number, save_png=False):
     next_board.push_uci(str(next_move))
 
     result_boards.append(boards_vector(board, next_board))
-    result_vector.append(1)
+    result_vector.append([1, 0])
 
     generate_random_game(next_board, game_number, move_number + 1, save_png=save_png)
     return
@@ -91,8 +91,17 @@ for i in range(args.games):
     all_boards.extend(result_boards)
     all_results.extend(result_vector)
 
+# Save dataset
 boards_path, results_path = dataset_path()
+
+os.makedirs(os.path.dirname(boards_path), exist_ok=True)
+os.makedirs(os.path.dirname(results_path), exist_ok=True)
+
+print(np.array(all_boards).shape, np.array(all_results).shape)
+
 np.save(boards_path, np.array(all_boards))
 np.save(results_path, np.array(all_results))
+
+print('Dataset saved into: ', boards_path, 'and', results_path)
 
 
