@@ -3,6 +3,7 @@ from chess import svg, pgn
 from cairosvg import svg2png
 from scipy import misc
 from IPython.display import SVG
+from common.constants import DEFAULT_IMAGE_SIZE
 
 numpy.set_printoptions(threshold=numpy.nan)
 
@@ -18,7 +19,7 @@ def board2vector(board):
     return array.flatten()
 
 
-def board2png(board, filename, size=None, coordinates=False):
+def board2png(board, filename, size=DEFAULT_IMAGE_SIZE, coordinates=False):
     svg = SVG(chess.svg.board(board=board, size=size, coordinates=coordinates))
     svg2png(svg.data, write_to=filename)
 

@@ -1,26 +1,13 @@
-import os, chess, random, copy, time
-
 import numpy as np
+import os, chess, random, copy, time, argparse
+from gen.generate_games import board2png, board2array, board2vector
+from common.constants import *
 
-from pgn_parser import board2png, board2array, board2vector
-
-from chess import svg
-from IPython.display import SVG
-from svglib.svglib import svg2rlg
-from reportlab.graphics import renderPDF, renderPM
-
-from cairosvg import svg2png
-
-GOOD_GAMES_IMG_PATH = "../games/images/good/"
-BAD_GAMES_IMG_PATH = "../games/images/bad/"
-
-GAMES_ARR_PATH = "../games/dataset/"
-
-SAMPLE_SIZE = 1
-BAD_SAMPLE_SIZE = 1
-
-MAX_MOVE_NUM = 1000
-GAMES_NUM = 50
+parser = argparse.ArgumentParser()
+parser.add_argument('--maxmoves', type=int, default=100, help='Max moves until the game is counted as finished')
+parser.add_argument('--games', type=int, default=50, help='Number of games played')
+parser.add_argument('--pngs', type=bool, default=False, help='Determines if boards pngs should be generated')
+args = parser.parse_args()
 
 result_boards = []
 result_vector = []
@@ -30,7 +17,7 @@ def boards_vector(prev_board, next_board):
 
 def end_reason(board, move_number):
     move_prefix = "[" + str(move_number) + "] "
-    if move_number > MAX_MOVE_NUM:
+    if move_number > args.maxmoves:
         return move_prefix + "Too many moves made: " + str(move_number)
 
     if board.is_stalemate():
@@ -49,17 +36,18 @@ def gen_non_legal_moves(board, legal_moves):
     non_legal_moves.difference_update(set(legal_moves))
     return non_legal_moves
 
-def generate_random_game(board, game_number, move_number):
+def generate_random_game(board, game_number, move_number, save_png=False):
     global resultBoards, resultVector
 
-    if move_number == 0:
+    if move_number == 0 and save_png:
         if not os.path.exists(GOOD_GAMES_IMG_PATH + str(game_number)):
             os.makedirs(GOOD_GAMES_IMG_PATH + str(game_number))
         if not os.path.exists(BAD_GAMES_IMG_PATH + str(game_number)):
             os.makedirs(BAD_GAMES_IMG_PATH + str(game_number))
 
     # save move to png
-    board2png(board, GOOD_GAMES_IMG_PATH + str(game_number) + "/" + str(move_number) + ".png")
+    if save_png:
+        board2png(board, GOOD_GAMES_IMG_PATH + str(game_number) + "/" + str(move_number) + ".png")
 
     if move_number % 10 == 0:
         print("Game: " + str(game_number) + ", Move: " + str(move_number))
@@ -78,8 +66,9 @@ def generate_random_game(board, game_number, move_number):
         result_boards.append(boards_vector(board, non_legal_board))
         result_vector.append(0)
 
-        board2png(board, BAD_GAMES_IMG_PATH + str(game_number) + "/" + str(move_number) + ".png")
-        board2png(non_legal_board, BAD_GAMES_IMG_PATH + str(game_number) + "/" + str(move_number) + "-bad.png")
+        if save_png:
+            board2png(board, BAD_GAMES_IMG_PATH + str(game_number) + "/" + str(move_number) + ".png")
+            board2png(non_legal_board, BAD_GAMES_IMG_PATH + str(game_number) + "/" + str(move_number) + "-bad.png")
 
     next_move = random.choice(legal_moves)
     next_board = board.copy()
@@ -88,21 +77,22 @@ def generate_random_game(board, game_number, move_number):
     result_boards.append(boards_vector(board, next_board))
     result_vector.append(1)
 
-    generate_random_game(next_board, game_number, move_number + 1)
+    generate_random_game(next_board, game_number, move_number + 1, save_png=save_png)
     return
 
-
-for i in range(GAMES_NUM):
+all_boards = []
+all_results = []
+for i in range(args.games):
     board = chess.Board()
     result_boards = []
     result_vector = []
-    generate_random_game(board, i, 0)
+    generate_random_game(board, i, 0, save_png=args.pngs)
 
-    if not os.path.exists(GAMES_ARR_PATH + str(i)):
-        os.makedirs(GAMES_ARR_PATH + str(i))
+    all_boards.extend(result_boards)
+    all_results.extend(result_vector)
 
-    np.save(GAMES_ARR_PATH + str(i) + "/boards.npy", np.array(result_boards))
-    np.save(GAMES_ARR_PATH + str(i) + "/results.npy", np.array(result_vector))
-
+boards_path, results_path = dataset_path()
+np.save(boards_path, np.array(all_boards))
+np.save(results_path, np.array(all_results))
 
 
