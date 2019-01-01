@@ -1,6 +1,8 @@
 import keras, argparse
+import matplotlib.pyplot as plt
+from keras.utils import plot_model
 from keras.models import Model, Input
-from keras.layers import Dense, Dropout, Flatten, Add, Conv2D, MaxPooling2D, ZeroPadding2D, AveragePooling2D, BatchNormalization, Activation
+from keras.layers import Dense, Dropout, Flatten, Add, Conv2D, MaxPooling2D, ZeroPadding2D, AveragePooling2D, BatchNormalization, Activation, concatenate
 from keras import backend as K
 from preprocess import Dataset
 from common.constants import DEFAULT_IMAGE_SIZE
@@ -12,6 +14,8 @@ input_shape = (DEFAULT_IMAGE_SIZE, DEFAULT_IMAGE_SIZE, 3)
 parser = argparse.ArgumentParser()
 parser.add_argument('--batches', type=int, default=64, help='Number of batches')
 parser.add_argument('--epochs', type=int, default=10, help='Number of epochs')
+parser.add_argument('--plot-model', action='store_true', help='Determines if structure of the model should be plotted')
+parser.add_argument('--plot-history', action='store_true', help='Determines if history of loss and accuracy should be plotted')
 args = parser.parse_args()
 
 dataset = Dataset()
@@ -47,7 +51,7 @@ def half_model():
 before_model = half_model()
 after_model = half_model()
 
-merged_model = Add()([before_model.output, after_model.output])
+merged_model = concatenate([before_model.output, after_model.output],axis=-1)
 merged_model = Dense(512, activation='relu')(merged_model)
 merged_model = Dropout(.25)(merged_model)
 merged_model = Dense(256, activation='relu')(merged_model)
@@ -60,19 +64,41 @@ merged_model = Dense(num_classes, activation='softmax')(merged_model)
 
 whole_model = Model([before_model.input, after_model.input], merged_model)
 
+if args.plot_model:
+    plot_model(whole_model, to_file='model.png')
+
 whole_model.compile(
     loss=keras.losses.categorical_crossentropy,
     optimizer=keras.optimizers.Adadelta(),
     metrics=['accuracy'],
 )
 
-whole_model.fit(
+history = whole_model.fit(
     [x_train_1, x_train_2], y_train,
     batch_size=args.batches,
     epochs=args.epochs,
     verbose=1,
     validation_data=([x_test_1, x_test_2], y_test),
 )
+
+if args.plot_history:
+    # Plot training & validation accuracy values
+    plt.plot(history.history['acc'])
+    plt.plot(history.history['val_acc'])
+    plt.title('Model accuracy')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epoch')
+    plt.legend(['Train', 'Test'], loc='upper left')
+    plt.show()
+
+    # Plot training & validation loss values
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('Model loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(['Train', 'Test'], loc='upper left')
+    plt.show()
 
 score = whole_model.evaluate([x_test_1, x_test_2], y_test, verbose=0)
 print('Test loss:', score[0])
