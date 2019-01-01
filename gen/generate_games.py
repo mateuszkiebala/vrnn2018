@@ -14,8 +14,7 @@ from cairosvg import svg2png
 GOOD_GAMES_IMG_PATH = "../games/images/good/"
 BAD_GAMES_IMG_PATH = "../games/images/bad/"
 
-GAMES_ARR_PATH = "../games/arrays/"
-
+GAMES_ARR_PATH = "../games/dataset/"
 
 SAMPLE_SIZE = 1
 BAD_SAMPLE_SIZE = 1
@@ -23,90 +22,87 @@ BAD_SAMPLE_SIZE = 1
 MAX_MOVE_NUM = 1000
 GAMES_NUM = 50
 
-resultBoards = []
-resultVector = []
+result_boards = []
+result_vector = []
 
-def getBoardsVector(prevBoard, nextBoard):
-    return np.concatenate([board2vector(prevBoard), board2vector(nextBoard)])
+def boards_vector(prev_board, next_board):
+    return np.concatenate([board2vector(prev_board), board2vector(next_board)])
 
-def getEndReason(board, moveNumber):
-    movePrefix = "[" + str(moveNumber) + "] "
-    if moveNumber > MAX_MOVE_NUM:
-        return movePrefix + "Too many moves made: " + str(moveNumber)
+def end_reason(board, move_number):
+    move_prefix = "[" + str(move_number) + "] "
+    if move_number > MAX_MOVE_NUM:
+        return move_prefix + "Too many moves made: " + str(move_number)
 
     if board.is_stalemate():
-        return movePrefix + "Stalemate"
+        return move_prefix + "Stalemate"
     if board.is_fivefold_repetition():
-        return movePrefix + "Fivefold repetition"
+        return move_prefix + "Fivefold repetition"
     if board.is_seventyfive_moves():
-        return movePrefix + "75 moves wihout capture and a pawn push"
-    
-    return movePrefix + "Game over"
+        return move_prefix + "75 moves without capture and a pawn push"
 
-def getNonLegalMoves(board, legalMoves):
-    pseudoLegalMoves = set([g for g in board.pseudo_legal_moves])
+    return move_prefix + "Game over"
 
-    notLegalMoves = set(pseudoLegalMoves)
-    notLegalMoves.difference_update(set(legalMoves))
+def gen_non_legal_moves(board, legal_moves):
+    pseudo_legal_moves = set([g for g in board.pseudo_legal_moves])
 
-    return notLegalMoves
+    non_legal_moves = set(pseudo_legal_moves)
+    non_legal_moves.difference_update(set(legal_moves))
+    return non_legal_moves
 
-def generateRandomGame(board, gameNumber, moveNumber):
+def generate_random_game(board, game_number, move_number):
     global resultBoards, resultVector
 
-    if moveNumber == 0:
-        if not os.path.exists(GOOD_GAMES_IMG_PATH + str(gameNumber)):
-            os.makedirs(GOOD_GAMES_IMG_PATH + str(gameNumber))
-        if not os.path.exists(BAD_GAMES_IMG_PATH + str(gameNumber)): 
-            os.makedirs(BAD_GAMES_IMG_PATH + str(gameNumber))
+    if move_number == 0:
+        if not os.path.exists(GOOD_GAMES_IMG_PATH + str(game_number)):
+            os.makedirs(GOOD_GAMES_IMG_PATH + str(game_number))
+        if not os.path.exists(BAD_GAMES_IMG_PATH + str(game_number)):
+            os.makedirs(BAD_GAMES_IMG_PATH + str(game_number))
 
     # save move to png
-    board2png(board, GOOD_GAMES_IMG_PATH + str(gameNumber) + "/" + str(moveNumber) + ".png")
+    board2png(board, GOOD_GAMES_IMG_PATH + str(game_number) + "/" + str(move_number) + ".png")
 
-    if moveNumber % 10 == 0:
-        print("Game: " + str(gameNumber) + ", Move: " + str(moveNumber))
+    if move_number % 10 == 0:
+        print("Game: " + str(game_number) + ", Move: " + str(move_number))
 
     if board.is_game_over():
-        print(getEndReason(board, moveNumber))
+        print(end_reason(board, move_number))
         return
 
-    legalMoves = [g for g in board.legal_moves]
-    notLegalMoves = getNonLegalMoves(board, set(legalMoves))
+    legal_moves = [g for g in board.legal_moves]
+    non_legal_moves = gen_non_legal_moves(board, set(legal_moves))
 
-    if len(notLegalMoves) > 0:
-        nonLegalBoard = board.copy()
-        nonLegalBoard.push(notLegalMoves.pop())
+    if len(non_legal_moves) > 0:
+        non_legal_board = board.copy()
+        non_legal_board.push(non_legal_moves.pop())
 
-        resultBoards.append(getBoardsVector(board, nonLegalBoard))
-        resultVector.append(0)
+        result_boards.append(boards_vector(board, non_legal_board))
+        result_vector.append(0)
 
-        board2png(board, BAD_GAMES_IMG_PATH + str(gameNumber) + "/" + str(moveNumber) + ".png")
-        board2png(nonLegalBoard, BAD_GAMES_IMG_PATH + str(gameNumber) + "/" + str(moveNumber) + "-bad.png")
+        board2png(board, BAD_GAMES_IMG_PATH + str(game_number) + "/" + str(move_number) + ".png")
+        board2png(non_legal_board, BAD_GAMES_IMG_PATH + str(game_number) + "/" + str(move_number) + "-bad.png")
 
+    next_move = random.choice(legal_moves)
+    next_board = board.copy()
+    next_board.push_uci(str(next_move))
 
-    nextMove = random.choice(legalMoves)
-    nextBoard = board.copy()
-    nextBoard.push_uci(str(nextMove))
+    result_boards.append(boards_vector(board, next_board))
+    result_vector.append(1)
 
-    resultBoards.append(getBoardsVector(board, nextBoard))
-    resultVector.append(1)
-
-    generateRandomGame(nextBoard, gameNumber, moveNumber + 1)
-
-
+    generate_random_game(next_board, game_number, move_number + 1)
+    return
 
 
 for i in range(GAMES_NUM):
     board = chess.Board()
-    resultBoards = []
-    resultVector = []
-    generateRandomGame(board, i, 0)
+    result_boards = []
+    result_vector = []
+    generate_random_game(board, i, 0)
 
     if not os.path.exists(GAMES_ARR_PATH + str(i)):
         os.makedirs(GAMES_ARR_PATH + str(i))
 
-    np.save(GAMES_ARR_PATH + str(i) + "/boards.npy", np.array(resultBoards))
-    np.save(GAMES_ARR_PATH + str(i) + "/results.npy", np.array(resultVector))
+    np.save(GAMES_ARR_PATH + str(i) + "/boards.npy", np.array(result_boards))
+    np.save(GAMES_ARR_PATH + str(i) + "/results.npy", np.array(result_vector))
 
 
 
