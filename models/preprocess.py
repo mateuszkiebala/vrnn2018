@@ -20,6 +20,11 @@ class Dataset:
         if type == 'split':
             (x_train, y_train), (x_test, y_test) = self._data
             return (x_train[:,0], x_train[:,1], y_train), (x_test[:,0], x_test[:,1], y_test)
+        if type == 'concat':
+            (x_train, y_train), (x_test, y_test) = self._data
+            train = (np.concatenate((x_train[:,0], x_train[:,1]), axis=2), y_train)
+            test = (np.concatenate((x_test[:,0], x_test[:,1]), axis=2), y_test)
+            return train, test
         return self._data
 
 
