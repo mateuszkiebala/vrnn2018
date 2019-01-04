@@ -78,6 +78,7 @@ history = whole_model.fit(
     batch_size=args.batches,
     epochs=args.epochs,
     verbose=1,
+    shuffle=True,
     validation_data=([x_test_1, x_test_2], y_test),
 )
 
