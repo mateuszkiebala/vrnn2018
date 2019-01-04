@@ -109,7 +109,6 @@ class Generator:
 
         print("Book game " + str(self.game_number) + " ends on move " + str(move_number))
 
-
     def random_game(self, board=chess.Board(), move_number=0):
         if move_number == 0:
             self._create_imgs_dirs()
@@ -172,12 +171,13 @@ for result in pool.map(generate_book_game, range(args.randomgames+1, args.bookga
 
 # Save dataset
 boards_path, results_path = dataset_path()
+p = np.random.permutation(len(all_boards))
 
 os.makedirs(os.path.dirname(boards_path), exist_ok=True)
 os.makedirs(os.path.dirname(results_path), exist_ok=True)
 
-np.save(boards_path, np.array(all_boards))
-np.save(results_path, np.array(all_results))
+np.save(boards_path, np.array(all_boards)[p])
+np.save(results_path, np.array(all_results)[p])
 
 print('Dataset saved into: ', boards_path, 'and', results_path)
 
