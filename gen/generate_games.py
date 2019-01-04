@@ -6,9 +6,9 @@ from common.constants import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--maxmoves', type=int, default=100, help='Max moves until the game is counted as finished')
-parser.add_argument('--games', type=int, default=50, help='Number of games played')
+parser.add_argument('--randomgames', type=int, default=25, help='Number of random games played')
 parser.add_argument('--pngs', type=bool, default=False, help='Determines if boards pngs should be generated')
-parser.add_argument('--bookgames', type=bool, default=False, help='Determines if games should be taken from chess book')
+parser.add_argument('--bookgames', type=int, default=25, help='Number of book games played')
 args = parser.parse_args()
 
 def boards_vector(prev_board, next_board):
@@ -74,11 +74,15 @@ class Generator:
 
 
     def book_game(self):
-        game = next_book_game()
+        while True:
+            game = next_book_game()
 
-        if game is None:
-            print("End of chess book reached. Couldn't generate any more games")
-            return None
+            if game is None:
+                print("End of chess book reached. Couldn't generate any more games")
+                return None
+
+            if len([m for m in game.mainline_moves()]) > 0:
+                break
 
         board = game.board()
         self._create_imgs_dirs()
@@ -144,7 +148,7 @@ def generate_random_game(i):
 def generate_book_game(i):
     generator = Generator(i, save_png=args.pngs)
     generator.book_game()
-    
+
     return generator.results()
 
 
@@ -158,7 +162,11 @@ if args.bookgames:
 else:
     generate_game = generate_random_game
 
-for result in pool.map(generate_game, range(1, args.games+1)):
+for result in pool.map(generate_random_game, range(1, args.randomgames+1)):
+    all_boards.extend(result[0])
+    all_results.extend(result[1])
+
+for result in pool.map(generate_book_game, range(args.randomgames+1, args.bookgames + args.randomgames +1)):
     all_boards.extend(result[0])
     all_results.extend(result[1])
 
