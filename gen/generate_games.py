@@ -101,7 +101,6 @@ class Generator:
             self.result_vector.append([1, 0])
 
             board = next_board
-
             move_number = move_number + 1
 
         print("Book game " + str(self.game_number) + " ends on move " + str(move_number))
@@ -144,8 +143,8 @@ def generate_random_game(i):
 
 def generate_book_game(i):
     generator = Generator(i, save_png=args.pngs)
-    if generator.book_game() is None:
-        return [], []
+    generator.book_game()
+    
     return generator.results()
 
 
