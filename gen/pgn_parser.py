@@ -1,4 +1,4 @@
-import os, chess, uuid, argparse
+import os, chess, uuid, argparse, random
 import numpy as np
 from chess import svg, pgn
 from cairosvg import svg2png
@@ -33,7 +33,11 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--games', type=int, default=10, help='Number of games played')
 args = parser.parse_args()
 
+
 class PgnGenerator:
+    GOOD_RESULT = [1, 0]
+    BAD_RESULT = [0, 1]
+
     def __init__(self, pgn_games_path):
         self.pgn_games_path = pgn_games_path
         self.result_boards = []
@@ -46,17 +50,52 @@ class PgnGenerator:
         while game and game_index < args.games:
             board = game.board()
             for i, move in enumerate(game.mainline_moves()):
-                prev_board = board.copy()
+                boards_vec, result = gen_good(board.copy(), move)
+                self.result_boards.append(boards_vec)
+                self.result_vector.append(result)
+
+                boards_vec, result = gen_bad(board.copy(), move)
+                self.result_boards.append(boards_vec)
+                self.result_vector.append(result)
+
                 board.push(move)
-                diff_board = chess.Board(fen=None)
-                diff_board.set_piece_at(move.from_square, prev_board.piece_at(move.from_square))
-                self.result_boards.append(boards_vector_triple(prev_board, board, diff_board))
-                self.result_vector.append(generate_single_result(prev_board, move))
-                print("Game number: {0}. Move number: {1}. Last result: {2}".format(game_index, i, self.result_vector[-1]))
+                if i % 10 == 0:
+                    print("Game number: {0}. Move number: {1}".format(game_index, i))
             game_index += 1
             game = pgn.read_game(pgn_file)
         return [self.result_boards, self.result_vector]
 
+
+def gen_good(board, move):
+    prev_board = board.copy()
+    board_with_only_start_piece = gen_single_figure_board(move.from_square, prev_board.piece_at(move.from_square))
+    board.push(move)
+    return [boards_vector_triple(prev_board, board, board_with_only_start_piece), PgnGenerator.GOOD_RESULT]
+
+
+def gen_bad(board, move):
+    prev_board = board.copy()
+    start_square = move.from_square
+    piece_to_move = prev_board.piece_at(start_square)
+    board_with_only_start_piece = gen_single_figure_board(start_square, piece_to_move)
+    illegal_move = gen_illegal_move(prev_board, start_square)
+    board.set_piece_at(illegal_move.to_square, piece_to_move)
+    board.remove_piece_at(illegal_move.from_square)
+    return [boards_vector_triple(prev_board, board, board_with_only_start_piece), PgnGenerator.BAD_RESULT]
+
+
+def gen_single_figure_board(square, piece):
+    board = chess.Board(fen=None)
+    board.set_piece_at(square, piece)
+    return board
+
+
+def gen_illegal_move(board, square):
+    all_moves = set("{0}{1}{2}".format(chess.SQUARE_NAMES[square], f, r) for f in "abcdefgh" for r in range(1, 9))
+    square_legal_moves = set(map(lambda move: move.uci(), filter(lambda move: move.from_square == square, board.legal_moves)))
+    illegal_moves = list(all_moves - square_legal_moves)
+    random.shuffle(illegal_moves)
+    return chess.Move.from_uci(illegal_moves[0])
 
 PIECE_MOVES = {
     1: [1, 0, 0, 0, 1],
@@ -76,7 +115,8 @@ PIECE_TYPE = {
     6: [0, 0, 0, 0, 0, 1]
 }
 
-def generate_single_result(board, move):
+
+def generate_piece_type_result(board, move):
     piece = board.piece_at(move.from_square)
     return PIECE_TYPE[piece.piece_type]
     #return [piece.piece_type, int(piece.color)] + PIECE_MOVES[piece.piece_type]

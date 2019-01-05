@@ -32,9 +32,14 @@ class Dataset:
 
     def triples_data(self):
         (x_train, y_train), (x_test, y_test) = self._data
-        print(scipy.misc.imsave('outfile0.jpg', x_train[0][0]))
-        print(scipy.misc.imsave('outfile1.jpg', x_train[0][1]))
-        print(scipy.misc.imsave('outfile2.jpg', x_train[0][2]))
+        #scipy.misc.imsave('outfile100.jpg', x_train[10][0])
+        #scipy.misc.imsave('outfile101.jpg', x_train[10][1])
+        #scipy.misc.imsave('outfile102.jpg', x_train[10][2])
+        #print(y_train[10])
+        #scipy.misc.imsave('outfile110.jpg', x_train[11][0])
+        #scipy.misc.imsave('outfile111.jpg', x_train[11][1])
+        #scipy.misc.imsave('outfile112.jpg', x_train[11][2])
+        #print(y_train[11])
         return (x_train[:,0], x_train[:,1], x_train[:,2], y_train), (x_test[:,0], x_test[:,1], x_test[:,2], y_test)
 
 

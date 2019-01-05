@@ -8,7 +8,7 @@ from preprocess import Dataset
 from common.constants import DEFAULT_IMAGE_SIZE
 
 # constants
-num_classes = 6
+num_classes = 2
 input_shape = (DEFAULT_IMAGE_SIZE, DEFAULT_IMAGE_SIZE, 3)
 
 parser = argparse.ArgumentParser()
