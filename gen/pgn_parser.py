@@ -1,10 +1,10 @@
-import os, chess, uuid
+import os, chess, uuid, threading
 import numpy as np
 from chess import svg, pgn
 from cairosvg import svg2png
 from scipy import misc
 from IPython.display import SVG
-from common.constants import DEFAULT_IMAGE_SIZE
+from common.constants import DEFAULT_IMAGE_SIZE, BOOK_GAMES_PATH
 
 np.set_printoptions(threshold=np.nan)
 
@@ -47,6 +47,13 @@ def parse_pgn(input_path, output_path):
         pgn2board(game, '{0}/{1}'.format(output_path, index))
         index += 1
 
+class PgnReader:
+    pgn = open(BOOK_GAMES_PATH)
+    lock = threading.Lock()
+    
+def next_book_game():
+    with PgnReader.lock:
+        return chess.pgn.read_game(PgnReader.pgn)
 
 if __name__ == '__main__':
     parse_pgn("../games/games.pgn", 'parsed_game/')

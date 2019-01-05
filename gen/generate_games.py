@@ -1,7 +1,7 @@
 import numpy as np
 import multiprocessing as mp
-import os, chess, random, copy, time, argparse, threading
-from pgn_parser import board2png, board2array
+import os, chess, random, copy, time, argparse
+from pgn_parser import board2png, board2array, next_book_game
 from common.constants import *
 
 parser = argparse.ArgumentParser()
@@ -28,21 +28,15 @@ def end_reason(board, move_number):
 
     return move_prefix + "Game over"
 
-def gen_non_legal_moves(board, legal_moves):
-    pseudo_legal_moves = set([g for g in board.pseudo_legal_moves])
+def gen_non_legal_move(board, legal_moves):
+    pseudo_legal_moves = [g for g in board.pseudo_legal_moves]
+    random.shuffle(pseudo_legal_moves)
 
-    non_legal_moves = set(pseudo_legal_moves)
-    non_legal_moves.difference_update(set(legal_moves))
-    return non_legal_moves
+    for move in pseudo_legal_moves:
+        if move not in legal_moves:
+            return move
 
-class PgnReader:
-    pgn = open(BOOK_GAMES_PATH)
-    lock = threading.Lock()
-    
-
-def next_book_game():
-    with PgnReader.lock:
-        return chess.pgn.read_game(PgnReader.pgn)
+    return None
 
 class Generator:
     def __init__(self, game_number, save_png=False):
@@ -59,11 +53,11 @@ class Generator:
                 os.makedirs(BAD_GAMES_IMG_PATH + str(self.game_number))
 
     def save_illegal_move(self, board, legal_moves, move_number):
-        non_legal_moves = gen_non_legal_moves(board, set(legal_moves))
+        non_legal_move = gen_non_legal_move(board, set(legal_moves))
 
-        if len(non_legal_moves) > 0:
+        if non_legal_move != None:
             non_legal_board = board.copy()
-            non_legal_board.push(non_legal_moves.pop())
+            non_legal_board.push(non_legal_move)
 
             self.result_boards.append(boards_vector(board, non_legal_board))
             self.result_vector.append([0, 1])
@@ -95,14 +89,18 @@ class Generator:
             if move_number % 10 == 0:
                 print("Book game: " + str(self.game_number) + ", Move: " + str(move_number))
 
+
             legal_moves = [g for g in board.legal_moves]
-            self.save_illegal_move(board, legal_moves, move_number)
+
+            if random.random() < SAVE_ILLEGAL_MOVE_PROBABILITY:
+                self.save_illegal_move(board, legal_moves, move_number)
 
             next_board = board.copy()
             next_board.push(move)
 
-            self.result_boards.append(boards_vector(board, next_board))
-            self.result_vector.append([1, 0])
+            if random.random() < SAVE_LEGAL_MOVE_PROBABILITY:
+                self.result_boards.append(boards_vector(board, next_board))
+                self.result_vector.append([1, 0])
 
             board = next_board
             move_number = move_number + 1
@@ -165,9 +163,14 @@ for result in pool.map(generate_random_game, range(1, args.randomgames+1)):
     all_boards.extend(result[0])
     all_results.extend(result[1])
 
+print("Number of generated random moves: {}".format(len(all_boards)))
+
 for result in pool.map(generate_book_game, range(args.randomgames+1, args.bookgames + args.randomgames +1)):
     all_boards.extend(result[0])
     all_results.extend(result[1])
+
+
+print("Number of all generated moves: {}".format(len(all_boards)))
 
 # Save dataset
 boards_path, results_path = dataset_path()
