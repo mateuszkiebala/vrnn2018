@@ -69,7 +69,11 @@ class Generator:
 
     def book_game(self):
         while True:
-            game = next_book_game()
+            try:
+                game = next_book_game()
+            except ValueError e:
+                print("Value error with next_book_game, trying another one")
+                continue
 
             if game is None:
                 print("End of chess book reached. Couldn't generate any more games")
