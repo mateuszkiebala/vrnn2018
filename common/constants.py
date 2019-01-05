@@ -12,5 +12,8 @@ RESULTS_FILE_NAME = "results.npy"
 
 DEFAULT_IMAGE_SIZE = 200 # size (width, height) of an image
 
+SAVE_LEGAL_MOVE_PROBABILITY = 0.1
+SAVE_ILLEGAL_MOVE_PROBABILITY = 0.1
+
 def dataset_path():
     return path.join(GAMES_ARR_PATH, BOARDS_FILE_NAME), path.join(GAMES_ARR_PATH, RESULTS_FILE_NAME)
