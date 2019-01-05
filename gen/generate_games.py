@@ -71,7 +71,7 @@ class Generator:
         while True:
             try:
                 game = next_book_game()
-            except ValueError e:
+            except ValueError:
                 print("Value error with next_book_game, trying another one")
                 continue
 
