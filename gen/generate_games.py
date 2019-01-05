@@ -45,6 +45,22 @@ class Generator:
         self.result_boards = []
         self.result_vector = []
 
+    def gen_wrong_move(self, board):
+        available_squares = set()
+
+        for i in range(1, 7):
+            available_squares = available_squares.union(board.pieces(i, board.turn))
+
+        while True:
+            random_start_square = chess.SQUARE_NAMES[random.choice(list(available_squares))]
+            random_dst_square = chess.SQUARE_NAMES[random.randint(0, 63)]
+            
+            move = chess.Move.from_uci(random_start_square + random_dst_square)
+
+            if move not in board.legal_moves:
+                return move
+
+
     def _create_imgs_dirs(self):
         if self.save_png:
             if not os.path.exists(GOOD_GAMES_IMG_PATH + str(self.game_number)):
@@ -64,7 +80,20 @@ class Generator:
 
             if self.save_png:
                 board2png(board, BAD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + ".png")
-                board2png(non_legal_board, BAD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + "-bad.png")
+                board2png(non_legal_board, BAD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + "-illegal.png")
+
+    def save_wrong_move(self, board, move_number):
+        move = self.gen_wrong_move(board)
+
+        wrong_board = board.copy()
+        wrong_board.push(move)
+
+        self.result_boards.append(boards_vector(board, wrong_board))
+        self.result_vector.append([0, 1])
+
+        if self.save_png:
+            board2png(board, BAD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + ".png")
+            board2png(wrong_board, BAD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + "-wrong.png")
 
 
     def book_game(self):
@@ -87,24 +116,26 @@ class Generator:
         move_number = 0
 
         for move in game.mainline_moves():
-            if self.save_png:
-                board2png(board, GOOD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + ".png")
-
-            if move_number % 10 == 0:
-                print("Book game: " + str(self.game_number) + ", Move: " + str(move_number))
-
-
             legal_moves = [g for g in board.legal_moves]
 
             if random.random() < SAVE_ILLEGAL_MOVE_PROBABILITY:
+                print("[Game {}] Saving illegal move {}".format(self.game_number, move_number))
                 self.save_illegal_move(board, legal_moves, move_number)
+
+            if random.random() < SAVE_WRONG_MOVE_PROBABILITY:
+                self.save_wrong_move(board, move_number)
+                print("[Game {}] Saving wrong move {}".format(self.game_number, move_number))
 
             next_board = board.copy()
             next_board.push(move)
 
             if random.random() < SAVE_LEGAL_MOVE_PROBABILITY:
+                print("[Game {}] Saving correct move {}".format(self.game_number, move_number))
                 self.result_boards.append(boards_vector(board, next_board))
                 self.result_vector.append([1, 0])
+                if self.save_png:
+                    board2png(board, GOOD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + ".png")
+                    board2png(next_board, GOOD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + "-next.png")
 
             board = next_board
             move_number = move_number + 1
@@ -127,6 +158,7 @@ class Generator:
             return
 
         legal_moves = [g for g in board.legal_moves]
+
         self.save_illegal_move(board, legal_moves, move_number)
 
         next_move = random.choice(legal_moves)
