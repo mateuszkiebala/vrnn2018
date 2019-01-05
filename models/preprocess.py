@@ -2,6 +2,7 @@ import numpy as np
 from sklearn import utils
 from sklearn.model_selection import train_test_split
 from common.constants import dataset_path
+import scipy.misc
 
 class Dataset:
     def __init__(self):
@@ -22,10 +23,19 @@ class Dataset:
             return (x_train[:,0], x_train[:,1], y_train), (x_test[:,0], x_test[:,1], y_test)
         if type == 'concat':
             (x_train, y_train), (x_test, y_test) = self._data
-            train = (np.concatenate((x_train[:,0], x_train[:,1]), axis=2), y_train)
-            test = (np.concatenate((x_test[:,0], x_test[:,1]), axis=2), y_test)
+            train = (x_train[:, 2], y_train)
+            test = (x_test[:, 2], y_test)
+            #train = (np.concatenate((x_train[:,0], x_train[:,1]), axis=2), y_train)
+            #test = (np.concatenate((x_test[:,0], x_test[:,1]), axis=2), y_test)
             return train, test
         return self._data
+
+    def triples_data(self):
+        (x_train, y_train), (x_test, y_test) = self._data
+        print(scipy.misc.imsave('outfile0.jpg', x_train[0][0]))
+        print(scipy.misc.imsave('outfile1.jpg', x_train[0][1]))
+        print(scipy.misc.imsave('outfile2.jpg', x_train[0][2]))
+        return (x_train[:,0], x_train[:,1], x_train[:,2], y_train), (x_test[:,0], x_test[:,1], x_test[:,2], y_test)
 
 
 

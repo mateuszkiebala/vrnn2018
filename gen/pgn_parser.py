@@ -25,8 +25,8 @@ def board2vector(board):
     array = np.array(board2array(board))
     return array.flatten()
 
-def boards_vector(prev_board, next_board):
-    return np.array([board2array(prev_board), board2array(next_board)])
+def boards_vector_triple(prev_board, next_board, diff_board):
+    return np.array([board2array(prev_board), board2array(next_board), board2array(diff_board)])
 
 
 parser = argparse.ArgumentParser()
@@ -48,7 +48,9 @@ class PgnGenerator:
             for i, move in enumerate(game.mainline_moves()):
                 prev_board = board.copy()
                 board.push(move)
-                self.result_boards.append(boards_vector(prev_board, board))
+                diff_board = chess.Board(fen=None)
+                diff_board.set_piece_at(move.from_square, prev_board.piece_at(move.from_square))
+                self.result_boards.append(boards_vector_triple(prev_board, board, diff_board))
                 self.result_vector.append(generate_single_result(prev_board, move))
                 print("Game number: {0}. Move number: {1}. Last result: {2}".format(game_index, i, self.result_vector[-1]))
             game_index += 1

@@ -9,7 +9,7 @@ from common.constants import DEFAULT_IMAGE_SIZE
 
 # constants
 num_classes = 6
-input_shape = (DEFAULT_IMAGE_SIZE, DEFAULT_IMAGE_SIZE*2, 3)
+input_shape = (DEFAULT_IMAGE_SIZE, DEFAULT_IMAGE_SIZE, 3)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--batches', type=int, default=64, help='Number of batches')

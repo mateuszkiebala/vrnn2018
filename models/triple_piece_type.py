@@ -20,12 +20,14 @@ args = parser.parse_args()
 
 dataset = Dataset()
 dataset.load()
-(x_train_1, x_train_2, y_train), (x_test_1, x_test_2, y_test) = dataset.data(type='split')
+(x_train_1, x_train_2, x_train_3, y_train), (x_test_1, x_test_2, x_test_3, y_test) = dataset.triples_data()
 print(y_train.shape[0], 'train samples')
 print(y_test.shape[0], 'test samples')
 
 print(x_train_1.shape)
 print(x_train_2.shape)
+print(x_train_3.shape)
+
 
 def half_model():
     input = Input(shape=input_shape)
@@ -49,8 +51,9 @@ def half_model():
 
 before_model = half_model()
 after_model = half_model()
+diff_model = half_model()
 
-merged_model = concatenate([before_model.output, after_model.output], axis=-1)
+merged_model = concatenate([before_model.output, after_model.output, diff_model.output], axis=-1)
 merged_model = Dense(512, activation='relu')(merged_model)
 merged_model = Dropout(.25)(merged_model)
 merged_model = Dense(256, activation='relu')(merged_model)
@@ -61,7 +64,7 @@ merged_model = Dense(64, activation='relu')(merged_model)
 merged_model = Dropout(.25)(merged_model)
 merged_model = Dense(num_classes, activation='softmax')(merged_model)
 
-whole_model = Model([before_model.input, after_model.input], merged_model)
+whole_model = Model([before_model.input, after_model.input, diff_model.input], merged_model)
 
 if args.plot_model:
     plot_model(whole_model, to_file='model.png')
@@ -73,11 +76,11 @@ whole_model.compile(
 )
 
 history = whole_model.fit(
-    [x_train_1, x_train_2], y_train,
+    [x_train_1, x_train_2, x_train_3], y_train,
     batch_size=args.batches,
     epochs=args.epochs,
     verbose=1,
-    validation_data=([x_test_1, x_test_2], y_test),
+    validation_data=([x_test_1, x_test_2, x_test_3], y_test),
 )
 
 if args.plot_history:
@@ -99,6 +102,6 @@ if args.plot_history:
     plt.legend(['Train', 'Test'], loc='upper left')
     plt.show()
 
-score = whole_model.evaluate([x_test_1, x_test_2], y_test, verbose=0)
+score = whole_model.evaluate([x_test_1, x_test_2, x_test_3], y_test, verbose=0)
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
