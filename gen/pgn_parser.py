@@ -34,16 +34,14 @@ def boards_vector_double(prev_board, next_board):
     return np.array([board2array(prev_board), board2array(next_board)])
 
 
-def boards_vector_triple(prev_board, next_board, diff_board):
-    return np.array([board2array(prev_board), board2array(next_board), board2array(diff_board)])
-
-
 parser = argparse.ArgumentParser()
 parser.add_argument('--games', type=int, default=10, help='Number of games played')
+parser.add_argument('--result_type', choices=['bad', 'good', 'piece_type', 'move_length'],  required=True, help='Type of result')
 args = parser.parse_args()
 
 GOOD_RESULT = [1, 0]
 BAD_RESULT = [0, 1]
+
 
 class PgnReader:
     pgn = open(BOOK_GAMES_PATH)
@@ -51,25 +49,36 @@ class PgnReader:
 
 
 def next_book_game():
-    with PgnReader.lock:
-        return chess.pgn.read_game(PgnReader.pgn)
+    game = None
+    while not game:
+        try:
+            with PgnReader.lock:
+                game = chess.pgn.read_game(PgnReader.pgn)
+        except ValueError:
+            print("Value error with next_book_game, trying another one")
+            continue
+    return game
 
 
 def generate_data(game_num):
+    if args.result_type == 'move_length':
+        generate_fun = generate_move_length_data
+    elif args.result_type == 'piece_type':
+        generate_fun = generate_piece_type_data
+    elif args.result_type == 'good':
+        generate_fun = generate_good
+    else:
+        generate_fun = generate_bad
+
     result_boards = []
     result_vector = []
     game = next_book_game()
     board = game.board()
     moves_cnt = 0
     for move in game.mainline_moves():
-        boards_vec, result = gen_good(board.copy(), move)
-        result_boards.append(boards_vec)
-        result_vector.append(result)
-
-        boards_vec, result = gen_bad(board.copy(), move)
-        result_boards.append(boards_vec)
-        result_vector.append(result)
-
+        _board, _result = generate_fun(board.copy(), move)
+        result_boards.append(_board)
+        result_vector.append(_result)
         board.push(move)
         if moves_cnt % 10 == 0:
             print("Game: {0}. Move number: {1}".format(game_num, moves_cnt))
@@ -78,18 +87,28 @@ def generate_data(game_num):
     return [result_boards, result_vector]
 
 
-def gen_good(board, move):
+def generate_move_length_data(board, move):
+    piece_to_move = board.piece_at(move.from_square)
+    board_single_piece_before = gen_single_figure_board(move.from_square, piece_to_move)
+    board_single_piece_after = gen_single_figure_board(move.to_square, piece_to_move)
+    return [boards_vector_double(board_single_piece_before, board_single_piece_after), gen_move_length_result(move)]
+
+
+def generate_piece_type_data(board, move):
+    board_single_piece = gen_single_figure_board(move.from_square, board.piece_at(move.from_square))
+    return [board2array(board_single_piece), gen_piece_type_result(board, move)]
+
+
+def generate_good(board, move):
     prev_board = board.copy()
-    #board_with_only_start_piece = gen_single_figure_board(move.from_square, prev_board.piece_at(move.from_square))
     board.push(move)
     return [boards_vector_double(prev_board, board), GOOD_RESULT]
 
 
-def gen_bad(board, move):
+def generate_bad(board, move):
     prev_board = board.copy()
     start_square = move.from_square
     piece_to_move = prev_board.piece_at(start_square)
-    #board_with_only_start_piece = gen_single_figure_board(start_square, piece_to_move)
     illegal_move = gen_illegal_move(prev_board, start_square)
     board.set_piece_at(illegal_move.to_square, piece_to_move)
     board.remove_piece_at(illegal_move.from_square)
@@ -110,20 +129,16 @@ def gen_illegal_move(board, square):
     return chess.Move.from_uci(illegal_moves[0])
 
 
-PIECE_TYPE = {
-    1: [1, 0, 0, 0, 0, 0],
-    2: [0, 1, 0, 0, 0, 0],
-    3: [0, 0, 1, 0, 0, 0],
-    4: [0, 0, 0, 1, 0, 0],
-    5: [0, 0, 0, 0, 1, 0],
-    6: [0, 0, 0, 0, 0, 1]
-}
+def gen_piece_type_result(board, move):
+    result_vec = [0] * 6
+    result_vec[board.piece_at(move.from_square).piece_type - 1] = 1
+    return result_vec
 
 
-def generate_piece_type_result(board, move):
-    piece = board.piece_at(move.from_square)
-    return PIECE_TYPE[piece.piece_type]
-
+def gen_move_length_result(move):
+    result_vec = [0] * 7
+    result_vec[chess.square_distance(move.from_square, move.to_square) - 1] = 1
+    return result_vec
 
 if __name__ == '__main__':
     pool = mp.Pool(processes=mp.cpu_count())

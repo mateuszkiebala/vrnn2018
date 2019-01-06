@@ -23,11 +23,14 @@ class Dataset:
             return (x_train[:,0], x_train[:,1], y_train), (x_test[:,0], x_test[:,1], y_test)
         if type == 'concat':
             (x_train, y_train), (x_test, y_test) = self._data
-            train = (x_train[:, 2], y_train)
-            test = (x_test[:, 2], y_test)
+            scipy.misc.imsave('outfile100.jpg', x_train[10])
+            print(y_train[10])
+            #train = (x_train[:, 2], y_train)
+            #test = (x_test[:, 2], y_test)
             #train = (np.concatenate((x_train[:,0], x_train[:,1]), axis=2), y_train)
             #test = (np.concatenate((x_test[:,0], x_test[:,1]), axis=2), y_test)
-            return train, test
+
+            return self._data
         return self._data
 
     def triples_data(self):
