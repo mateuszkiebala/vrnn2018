@@ -118,6 +118,6 @@ dmypy.json
 .pyre/
 
 dataset/
-games/
+#games/
 
 *.png
