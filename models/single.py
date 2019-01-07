@@ -68,9 +68,9 @@ if args.plot_model:
 
 while True:
     for directory in os.listdir(GAMES_ARR_PATH):
-        if not os.path.isdir(directory):
+        if not os.path.isdir(os.path.join(GAMES_ARR_PATH, directory)):
             continue
-            
+
         dataset = Dataset()
         dataset.load(directory)
         (x_train, y_train), (x_test, y_test) = dataset.data(type='concat')
