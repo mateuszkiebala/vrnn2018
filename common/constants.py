@@ -4,7 +4,7 @@ file_path = path.dirname(path.abspath(__file__))
 
 GOOD_GAMES_IMG_PATH = path.join(file_path, "../games/images/good/")
 BAD_GAMES_IMG_PATH = path.join(file_path, "../games/images/bad/")
-BOOK_GAMES_PATH = path.join(file_path, "../common/games_book.pgn")
+BOOK_GAMES_PATH = path.join(file_path, "../common/games_pgns/")
 
 GAMES_ARR_PATH = path.join(file_path, "../dataset/")
 BOARDS_FILE_NAME = "boards.npy"
