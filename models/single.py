@@ -48,16 +48,16 @@ except Exception:
 
 
     model = Dense(512, activation='relu')(model)
-    model = Dropout(.25)(model)
+    model = Dropout(.5)(model)
 
     model = Dense(512, activation='relu')(model)
-    model = Dropout(.25)(model)
+    model = Dropout(.5)(model)
     model = Dense(256, activation='relu')(model)
     model = Dropout(.5)(model)
     model = Dense(128, activation='relu')(model)
-    model = Dropout(.35)(model)
+    model = Dropout(.5)(model)
     model = Dense(64, activation='relu')(model)
-    model = Dropout(.35)(model)
+    model = Dropout(.5)(model)
 
     model = Dense(num_classes, activation='softmax')(model)
     model = Model(inputs=input, outputs=model)
