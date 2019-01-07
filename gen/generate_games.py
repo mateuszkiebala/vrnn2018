@@ -100,7 +100,7 @@ class Generator:
         while True:
             try:
                 game = next_book_game()
-            except ValueError:
+            except Exception:
                 print("Value error with next_book_game, trying another one")
                 continue
 
@@ -184,40 +184,58 @@ def generate_book_game(i):
 
     return generator.results()
 
+def save_dataset(all_boards, all_results, number=None):
+    if number is None:
+        boards_path, results_path = dataset_path()
+    else:
+        boards_path, results_path = dataset_number_path(number)
+
+    p = np.random.permutation(len(all_boards))
+
+    os.makedirs(os.path.dirname(boards_path), exist_ok=True)
+    os.makedirs(os.path.dirname(results_path), exist_ok=True)
+
+    np.save(boards_path, np.array(all_boards)[p])
+    np.save(results_path, np.array(all_results)[p])
+
+    print('Dataset saved into: ', boards_path, 'and', results_path)
+
 
 # Generate games in parallel
 pool = mp.Pool(processes=mp.cpu_count())
 all_boards = []
 all_results = []
 
-if args.bookgames:
-    generate_game = generate_book_game
-else:
-    generate_game = generate_random_game
+random_game_number = 1
+book_game_number = args.randomgames + 1
+current_dataset_number = 0
 
-for result in pool.map(generate_random_game, range(1, args.randomgames+1)):
-    all_boards.extend(result[0])
-    all_results.extend(result[1])
+while True:
+    random_games_upper_bound = min(args.randomgames+1, random_game_number + mp.cpu_count()) # either next batch of games or smaller if games run out
 
-print("Number of generated random moves: {}".format(len(all_boards)))
+    for result in pool.map(generate_random_game, range(random_game_number, random_games_upper_bound)):
+        all_boards.extend(result[0])
+        all_results.extend(result[1])
 
-for result in pool.map(generate_book_game, range(args.randomgames+1, args.bookgames + args.randomgames +1)):
-    all_boards.extend(result[0])
-    all_results.extend(result[1])
+    random_game_number += mp.cpu_count()
 
+    book_games_upper_bound = min(args.bookgames + args.randomgames + 1, book_game_number + mp.cpu_count())
 
-print("Number of all generated moves: {}".format(len(all_boards)))
+    for result in pool.map(generate_book_game, range(book_game_number, book_games_upper_bound)):
+        all_boards.extend(result[0])
+        all_results.extend(result[1])
 
-# Save dataset
-boards_path, results_path = dataset_path()
-p = np.random.permutation(len(all_boards))
+    book_game_number += mp.cpu_count()
 
-os.makedirs(os.path.dirname(boards_path), exist_ok=True)
-os.makedirs(os.path.dirname(results_path), exist_ok=True)
+    if len(all_boards) > MAX_DATASET_SIZE:
+        save_dataset(all_boards, all_results, current_dataset_number)
+        all_boards = []
+        all_results = []
+        current_dataset_number += 1
 
-np.save(boards_path, np.array(all_boards)[p])
-np.save(results_path, np.array(all_results)[p])
-
-print('Dataset saved into: ', boards_path, 'and', results_path)
+    if random_game_number > args.randomgames and book_game_number > (args.randomgames + args.bookgames):
+        if len(all_boards) > 0:
+            save_dataset(all_boards, all_results, current_dataset_number)
+        break
 
 

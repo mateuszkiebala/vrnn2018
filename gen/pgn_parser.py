@@ -53,7 +53,13 @@ class PgnReader:
     
 def next_book_game():
     with PgnReader.lock:
-        return chess.pgn.read_game(PgnReader.pgn)
+        while True:
+            try:
+                print("Reading next_book_game")
+                return chess.pgn.read_game(PgnReader.pgn)
+            except Exception:
+                print("ValueError reading game from pgn")
+                continue
 
 if __name__ == '__main__':
     parse_pgn("../games/games.pgn", 'parsed_game/')
