@@ -226,15 +226,13 @@ while True:
 
     random_game_number += mp.cpu_count()
 
-    # book_games_upper_bound = min(args.bookgames + args.randomgames + 1, book_game_number + mp.cpu_count())
-    book_games_upper_bound = min(args.bookgames + args.randomgames + 1, book_game_number + 1)
+    book_games_upper_bound = min(args.bookgames + args.randomgames + 1, book_game_number + mp.cpu_count())
 
     for result in pool.map(generate_book_game, range(book_game_number, book_games_upper_bound)):
         all_boards.extend(result[0])
         all_results.extend(result[1])
 
-    # book_game_number += mp.cpu_count()
-    book_game_number += 1
+    book_game_number += mp.cpu_count()
 
     if len(all_boards) > MAX_DATASET_SIZE:
         save_dataset(all_boards, all_results, current_dataset_number)
