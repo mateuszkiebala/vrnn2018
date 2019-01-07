@@ -4,7 +4,7 @@ from chess import svg, pgn
 from cairosvg import svg2png
 from scipy import misc
 from IPython.display import SVG
-from common.constants import DEFAULT_IMAGE_SIZE, BOOK_GAMES_PATH
+from common.constants import DEFAULT_IMAGE_SIZE, BOOK_GAMES_PATH, BOOK_GAMES_PATH
 
 np.set_printoptions(threshold=np.nan)
 
@@ -48,18 +48,34 @@ def parse_pgn(input_path, output_path):
         index += 1
 
 class PgnReader:
-    pgn = open(BOOK_GAMES_PATH)
-    lock = threading.Lock()
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.pgns = [pgn for pgn in os.listdir(BOOK_GAMES_PATH)]
+        self.current_pgn_name = self.pgns[-1]
+        self.pgn = open(os.path.join(BOOK_GAMES_PATH, self.pgns.pop()))
+
+    def _next_pgn(self):
+        if len(self.pgns) == 0:
+            self.pgns = [pgn for pgn in os.listdir(BOOK_GAMES_PATH)]
+        
+        self.current_pgn_name = self.pgns[-1]
+        self.pgn = open(os.path.join(BOOK_GAMES_PATH, self.pgns.pop()))
+
     
-def next_book_game():
-    with PgnReader.lock:
-        while True:
-            try:
-                print("Reading next_book_game")
-                return chess.pgn.read_game(PgnReader.pgn)
-            except Exception:
-                print("ValueError reading game from pgn")
-                continue
+    def next_book_game(self):
+        with self.lock:
+            while True:
+                try:
+                    game = chess.pgn.read_game(self.pgn)
+                except:
+                    print("Error reading a game from pgn {}" + self.current_pgn_name)
+                    continue
+                
+                if game is not None:
+                    print("Next book game from {}".format(self.current_pgn_name))
+                    return game
+
+                self._next_pgn()
 
 if __name__ == '__main__':
     parse_pgn("../games/games.pgn", 'parsed_game/')

@@ -1,7 +1,7 @@
 import numpy as np
 import multiprocessing as mp
 import os, chess, random, copy, time, argparse
-from pgn_parser import board2png, board2array, next_book_game
+from pgn_parser import board2png, board2array, PgnReader
 from common.constants import *
 
 parser = argparse.ArgumentParser()
@@ -10,6 +10,8 @@ parser.add_argument('--randomgames', type=int, default=25, help='Number of rando
 parser.add_argument('--pngs', type=bool, default=False, help='Determines if boards pngs should be generated')
 parser.add_argument('--bookgames', type=int, default=25, help='Number of book games played')
 args = parser.parse_args()
+
+pgn_reader = PgnReader()
 
 def boards_vector(prev_board, next_board):
     return np.array([board2array(prev_board), board2array(next_board)])
@@ -99,7 +101,8 @@ class Generator:
     def book_game(self):
         while True:
             try:
-                game = next_book_game()
+                game = pgn_reader.next_book_game()
+                print("After next book game")
             except Exception:
                 print("Value error with next_book_game, trying another one")
                 continue
@@ -208,7 +211,11 @@ all_results = []
 
 random_game_number = 1
 book_game_number = args.randomgames + 1
-current_dataset_number = 0
+
+dirs = [int(dir) for dir in os.listdir(GAMES_ARR_PATH) if os.path.isdir(os.path.join(GAMES_ARR_PATH, dir))]
+current_dataset_number = max(dirs) + 1
+
+print("next dataset number {}".format(current_dataset_number))
 
 while True:
     random_games_upper_bound = min(args.randomgames+1, random_game_number + mp.cpu_count()) # either next batch of games or smaller if games run out
@@ -219,13 +226,15 @@ while True:
 
     random_game_number += mp.cpu_count()
 
-    book_games_upper_bound = min(args.bookgames + args.randomgames + 1, book_game_number + mp.cpu_count())
+    # book_games_upper_bound = min(args.bookgames + args.randomgames + 1, book_game_number + mp.cpu_count())
+    book_games_upper_bound = min(args.bookgames + args.randomgames + 1, book_game_number + 1)
 
     for result in pool.map(generate_book_game, range(book_game_number, book_games_upper_bound)):
         all_boards.extend(result[0])
         all_results.extend(result[1])
 
-    book_game_number += mp.cpu_count()
+    # book_game_number += mp.cpu_count()
+    book_game_number += 1
 
     if len(all_boards) > MAX_DATASET_SIZE:
         save_dataset(all_boards, all_results, current_dataset_number)
