@@ -68,6 +68,9 @@ if args.plot_model:
 
 epochs_passed = 0
 
+previous_loss = {}
+previous_acc = {}
+
 while True:
     for directory in os.listdir(GAMES_ARR_PATH):
         if not os.path.isdir(os.path.join(GAMES_ARR_PATH, directory)):
@@ -114,7 +117,10 @@ while True:
 
         score = model.evaluate(x_test, y_test, verbose=0)
         print('Epochs: ', epochs_passed)
-        print('Test loss:', score[0])
-        print('Test accuracy:', score[1])
+        print('Test loss: {}, previous loss {}, difference {}'.format(score[0], previous_loss.get(directory, 0), score[0] - previous_loss.get(directory, 0)))
+        print('Test accuracy {}, previous accuracy {}, difference {}'.format(score[1], previous_acc.get(directory, 0), score[1] - previous_acc.get(directory, 0)))
+
+        previous_loss[directory] = score[0]
+        previous_acc[directory] = score[1]
 
         model.save(SINGLE_MODEL_NAME)
