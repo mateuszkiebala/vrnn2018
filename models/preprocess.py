@@ -1,15 +1,20 @@
 import numpy as np
 from sklearn import utils
 from sklearn.model_selection import train_test_split
-from common.constants import dataset_path
+from common.constants import dataset_path, dataset_number_path
 
 class Dataset:
     def __init__(self):
         self._data = None
         self._splited = False
 
-    def load(self, split=True, shuffle=True):
-        boards_path, results_path = dataset_path()
+    def load(self, split=True, number=None, shuffle=True):
+        if number is not None:
+            boards_path, results_path = dataset_number_path(number)
+            print("boards path:{}, number {}".format(boards_path, str(number)))
+        else:
+            boards_path, results_path = dataset_path()
+
         x, y = np.load(boards_path), np.load(results_path)
         if shuffle:
             x, y = utils.shuffle(x, y, random_state=42)
@@ -39,7 +44,3 @@ class Dataset:
                 (x, y) = self._data
                 return (np.concatenate((x[:,0], x[:,1]), axis=2), y)
         return self._data
-
-
-
-
