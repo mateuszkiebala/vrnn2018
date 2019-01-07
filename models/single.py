@@ -66,6 +66,8 @@ except Exception:
 if args.plot_model:
     plot_model(model, to_file='model.png')
 
+epochs_passed = 0
+
 while True:
     for directory in os.listdir(GAMES_ARR_PATH):
         if not os.path.isdir(os.path.join(GAMES_ARR_PATH, directory)):
@@ -89,6 +91,8 @@ while True:
             validation_data=(x_test, y_test),
         )
 
+        epochs_passed += args.epochs
+
         if args.plot_history:
             # Plot training & validation accuracy values
             plt.plot(history.history['acc'])
@@ -109,6 +113,7 @@ while True:
             plt.show()
 
         score = model.evaluate(x_test, y_test, verbose=0)
+        print('Epochs: ', epochs_passed)
         print('Test loss:', score[0])
         print('Test accuracy:', score[1])
 
