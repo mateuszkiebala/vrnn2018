@@ -38,9 +38,9 @@ class ChessGenerator(Sequence):
         (x_train, y_train), (x_test, y_test) = dataset.data(type='concat')
 
         if self.train:
-            yield (x_train, y_train)
+            return (x_train, y_train)
         else:
-            yield (x_test, y_test)
+            return (x_test, y_test)
 
 def compiled_single_model(model_input_shape):
     input = Input(shape=model_input_shape)
