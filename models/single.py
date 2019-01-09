@@ -122,6 +122,7 @@ history = model.fit_generator(
     verbose=1,
     validation_data=ts_gen,
     validation_steps=1,
+    max_queue_size=2,
     callbacks=[ModelCheckpoint(SINGLE_MODEL_NAME, monitor='val_acc', verbose=1, save_best_only=True, mode='max')]
 )
 
