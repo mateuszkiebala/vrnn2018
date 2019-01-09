@@ -24,7 +24,7 @@ class ChessGenerator(Sequence):
 
     def __init__(self, train=True):
         self.train = train
-        self.dirs = [dir for dir in os.listdir(GAMES_ARR_PATH) if os.path.isdir(os.path.join(GAMES_ARR_PATH, directory))]
+        self.dirs = [dir for dir in os.listdir(GAMES_ARR_PATH) if os.path.isdir(os.path.join(GAMES_ARR_PATH, dir))]
 
     def __len__(self):
         return len(self.dirs)
