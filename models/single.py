@@ -4,6 +4,7 @@ from keras.utils import plot_model
 from keras.models import Model, Input, load_model
 from keras.layers import Dense, Dropout, Flatten, Add, Conv2D, MaxPooling2D, ZeroPadding2D, AveragePooling2D, BatchNormalization, Activation, concatenate
 from keras.callbacks import ModelCheckpoint
+from keras.utils import Sequence
 from keras import backend as K
 from preprocess import Dataset
 from common.constants import DEFAULT_IMAGE_SIZE, SINGLE_MODEL_NAME, GAMES_ARR_PATH
@@ -19,31 +20,26 @@ parser.add_argument('--plot-model', action='store_true', help='Determines if str
 parser.add_argument('--plot-history', action='store_true', help='Determines if history of loss and accuracy should be plotted')
 args = parser.parse_args()
 
-def train_generator():
-    while True:
-        for directory in os.listdir(GAMES_ARR_PATH):
-            if not os.path.isdir(os.path.join(GAMES_ARR_PATH, directory)):
-                continue
+class ChessGenerator(Sequence):
 
+    def __init__(self, train=True):
+        self.train = train
+        self.dirs = [dir for dir in os.listdir(GAMES_ARR_PATH) if os.path.isdir(os.path.join(GAMES_ARR_PATH, directory))]
 
-            dataset = Dataset()
-            dataset.load(number=directory)
+    def __len__(self):
+        return len(self.dirs)
 
-            (x_train, y_train), (x_test, y_test) = dataset.data(type='concat')
+    def __getitem__(self, idx):
+        dir = self.dirs[idx]
 
+        dataset = Dataset()
+        dataset.load(number=dir)
+
+        (x_train, y_train), (x_test, y_test) = dataset.data(type='concat')
+
+        if self.train:
             yield (x_train, y_train)
-
-def test_generator():
-    while True:
-        for directory in os.listdir(GAMES_ARR_PATH):
-            if not os.path.isdir(os.path.join(GAMES_ARR_PATH, directory)):
-                continue
-
-            dataset = Dataset()
-            dataset.load(number=directory)
-
-            (x_train, y_train), (x_test, y_test) = dataset.data(type='concat')
-
+        else:
             yield (x_test, y_test)
 
 def compiled_single_model(model_input_shape):
@@ -111,12 +107,12 @@ if create_model:
 if args.plot_model:
     plot_model(model, to_file='model.png')
 
-tr_gen = train_generator()
-ts_gen = test_generator()
+tr_gen = ChessGenerator(train=True)
+ts_gen = ChessGenerator(train=False)
 
 history = model.fit_generator(
     generator=tr_gen,
-    steps_per_epoch=1,
+    # steps_per_epoch=1,
     # batch_size=args.batches,
     epochs=args.epochs,
     verbose=1,
