@@ -121,9 +121,9 @@ class Generator:
         for move in game.mainline_moves():
             legal_moves = [g for g in board.legal_moves]
 
-            if random.random() < SAVE_ILLEGAL_MOVE_PROBABILITY:
-                print("[Game {}] Saving illegal move {}".format(self.game_number, move_number))
-                self.save_illegal_move(board, legal_moves, move_number)
+            # if random.random() < SAVE_ILLEGAL_MOVE_PROBABILITY:
+            #     print("[Game {}] Saving illegal move {}".format(self.game_number, move_number))
+            #     self.save_illegal_move(board, legal_moves, move_number)
 
             if random.random() < SAVE_WRONG_MOVE_PROBABILITY:
                 self.save_wrong_move(board, move_number)
