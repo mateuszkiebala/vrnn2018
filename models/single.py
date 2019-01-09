@@ -111,15 +111,17 @@ if create_model:
 if args.plot_model:
     plot_model(model, to_file='model.png')
 
+tr_gen = train_generator()
+ts_gen = test_generator()
 
 history = model.fit_generator(
-    generator=train_generator(),
-    steps_per_epoch=5,
+    generator=tr_gen,
+    steps_per_epoch=1,
     # batch_size=args.batches,
     epochs=args.epochs,
     verbose=1,
-    validation_data=test_generator(),
-    validation_steps=2,
+    validation_data=ts_gen,
+    validation_steps=1,
     callbacks=[ModelCheckpoint(SINGLE_MODEL_NAME, monitor='val_acc', verbose=1, save_best_only=True, mode='max')]
 )
 

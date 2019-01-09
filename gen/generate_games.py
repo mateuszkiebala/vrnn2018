@@ -212,12 +212,13 @@ all_results = []
 random_game_number = 1
 book_game_number = args.randomgames + 1
 
-dirs = [int(dir) for dir in os.listdir(GAMES_ARR_PATH) if os.path.isdir(os.path.join(GAMES_ARR_PATH, dir))]
+current_dataset_number = 0
 
-if len(dirs) == 0:
-    current_dataset_number = 0
-else:
-    current_dataset_number = max(dirs) + 1
+if os.path.exists(GAMES_ARR_PATH):
+    dirs = [int(dir) for dir in os.listdir(GAMES_ARR_PATH) if os.path.isdir(os.path.join(GAMES_ARR_PATH, dir))]
+
+    if len(dirs) != 0:
+        current_dataset_number = max(dirs) + 1
 
 print("next dataset number {}".format(current_dataset_number))
 
