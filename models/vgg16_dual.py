@@ -31,9 +31,13 @@ print(x_train_2.shape)
 def half_model():
     inputs = Input(shape=input_shape)
     model_vgg16 = VGG16(weights='imagenet', include_top=False, input_tensor=inputs)
-    model_vgg16.trainable = False
-    model = Dropout(.5)(model_vgg16.output)
-    model = Flatten()(model)
+    for layer in model_vgg16.layers:
+        layer.trainable = False
+    #model = Conv2D(512, (3, 3), activation='relu', padding='same')(model_vgg16.output)
+    #model = Dropout(0.5)(model)
+    #model = Conv2D(256, (3, 3), activation='relu', padding='same')(model)
+    #model = Dropout(0.5)(model)
+    model = Flatten()(model_vgg16.output)
     return Model(inputs=inputs, outputs=model)
 
 
@@ -43,8 +47,8 @@ for layer in after_model.layers:
     layer.name += str("_2")
 
 merged_model = concatenate([before_model.output, after_model.output], axis=-1)
-merged_model = Dense(512, activation='relu')(merged_model)
-merged_model = Dropout(.5)(merged_model)
+#merged_model = Dense(512, activation='relu')(merged_model)
+#merged_model = Dropout(.5)(merged_model)
 merged_model = Dense(256, activation='relu')(merged_model)
 merged_model = Dropout(.5)(merged_model)
 merged_model = Dense(128, activation='relu')(merged_model)
@@ -60,7 +64,7 @@ if args.plot_model:
 
 whole_model.compile(
     loss=keras.losses.categorical_crossentropy,
-    optimizer=keras.optimizers.Adadelta(),
+    optimizer=keras.optimizers.Adam(),
     metrics=['accuracy'],
 )
 
