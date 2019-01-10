@@ -98,11 +98,12 @@ for samples in fetcher.fetch_inf():
     history = model.fit(
         x_train, y_train,
         batch_size=args.batches,
-        epochs=EPOCHS_BATCH,
+        epochs=EPOCHS_BATCH + current_epochs,
         initial_epoch=current_epochs,
         verbose=1,
         validation_data=(x_test, y_test),
     )
+
 
     current_epochs += EPOCHS_BATCH
     model.save(SINGLE_MODEL_NAME)
