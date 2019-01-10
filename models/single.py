@@ -6,8 +6,8 @@ from keras.layers import Dense, Dropout, Flatten, Add, Conv2D, MaxPooling2D, Zer
 from keras.callbacks import ModelCheckpoint
 from keras.utils import Sequence
 from keras import backend as K
-from preprocess import Dataset
-from common.constants import DEFAULT_IMAGE_SIZE, SINGLE_MODEL_NAME, GAMES_ARR_PATH
+from preprocess import Dataset, DataFetcher
+from common.constants import DEFAULT_IMAGE_SIZE, SINGLE_MODEL_NAME, GAMES_ARR_PATH, EPOCHS_BATCH
 
 # constants
 num_classes = 2 # 0 or 1
@@ -19,28 +19,6 @@ parser.add_argument('--epochs', type=int, default=10, help='Number of epochs')
 parser.add_argument('--plot-model', action='store_true', help='Determines if structure of the model should be plotted')
 parser.add_argument('--plot-history', action='store_true', help='Determines if history of loss and accuracy should be plotted')
 args = parser.parse_args()
-
-class ChessGenerator(Sequence):
-
-    def __init__(self, train=True):
-        self.train = train
-        self.dirs = [dir for dir in os.listdir(GAMES_ARR_PATH) if os.path.isdir(os.path.join(GAMES_ARR_PATH, dir))]
-
-    def __len__(self):
-        return len(self.dirs)
-
-    def __getitem__(self, idx):
-        dir = self.dirs[idx]
-
-        dataset = Dataset()
-        dataset.load(number=dir)
-
-        (x_train, y_train), (x_test, y_test) = dataset.data(type='concat')
-
-        if self.train:
-            return (x_train, y_train)
-        else:
-            return (x_test, y_test)
 
 def compiled_single_model(model_input_shape):
     input = Input(shape=model_input_shape)
@@ -107,22 +85,27 @@ if create_model:
 if args.plot_model:
     plot_model(model, to_file='model.png')
 
-tr_gen = ChessGenerator(train=True)
-ts_gen = ChessGenerator(train=False)
+fetcher = DataFetcher()
+current_epochs = 0
+history = None
 
-history = model.fit_generator(
-    generator=tr_gen,
-    # steps_per_epoch=1,
-    # batch_size=args.batches,
-    epochs=args.epochs,
-    verbose=1,
-    validation_data=ts_gen,
-    validation_steps=1,
-    max_queue_size=1,
-    workers=1
-    # callbacks=[ModelCheckpoint(SINGLE_MODEL_NAME, monitor='val_acc', verbose=1, save_best_only=True, mode='max')]
-)
+for samples in fetcher.fetch_inf():
+    if current_epochs >= args.epochs:
+        break
 
+    (x_train, y_train), (x_test, y_test) = samples
+
+    history = model.fit(
+        x_train, y_train,
+        batch_size=args.batches,
+        epochs=EPOCHS_BATCH,
+        initial_epoch=current_epochs,
+        verbose=1,
+        validation_data=(x_test, y_test),
+    )
+
+    current_epochs += EPOCHS_BATCH
+    model.save(SINGLE_MODEL_NAME)
 
 if args.plot_history:
     # Plot training & validation accuracy values
