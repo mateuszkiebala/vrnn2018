@@ -1,4 +1,5 @@
 import keras, argparse, os
+import tensorflow as tf
 import matplotlib.pyplot as plt
 from keras.utils import plot_model
 from keras.models import Model, Input, load_model
