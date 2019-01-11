@@ -29,9 +29,10 @@ def compiled_single_model(model_input_shape):
     for layer in vgg.layers:
         layer.trainable = False
 
-    vggmodel = VGG16(weights='imagenet')(input)
+    output_vgg = VGG16(weights='imagenet')(input)
 
-    model = Flatten()(vggmodel)
+    model = Flatten()(output_vgg)
+    model = Dense(512, activation='relu')(model)
 
     model = ZeroPadding2D((3, 3))(model)
 
