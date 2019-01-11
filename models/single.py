@@ -21,10 +21,11 @@ parser.add_argument('--plot-model', action='store_true', help='Determines if str
 parser.add_argument('--plot-history', action='store_true', help='Determines if history of loss and accuracy should be plotted')
 args = parser.parse_args()
 
+
 def compiled_single_model(model_input_shape):
     input = Input(shape=model_input_shape)
 
-    vgg = VGG16(weights='imagenet')
+    vgg = VGG16(weights='imagenet', input_shape=model_input_shape)
 
     for layer in vgg.layers:
         layer.trainable = False
