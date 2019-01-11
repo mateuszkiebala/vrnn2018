@@ -21,6 +21,13 @@ parser.add_argument('--plot-model', action='store_true', help='Determines if str
 parser.add_argument('--plot-history', action='store_true', help='Determines if history of loss and accuracy should be plotted')
 args = parser.parse_args()
 
+os.environ["CUDA_VISIBLE_DEVICES"]="3"
+
+config = tf.ConfigProto()
+config.gpu_options.allow_growth=True
+sess = tf.Session(config=config)
+keras.backend.set_session(sess)
+
 
 def compiled_single_model(model_input_shape):
     input = Input(shape=model_input_shape)
