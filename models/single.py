@@ -33,29 +33,29 @@ def compiled_single_model(model_input_shape):
     output_vgg = VGG16(weights='imagenet')(input)
 
     model = Flatten()(output_vgg)
-    model = Dense(512, activation='relu')(model)
+    # model = Dense(512, activation='relu')(model)
 
-    model = ZeroPadding2D((3, 3))(model)
+    # model = ZeroPadding2D((3, 3))(model)
 
-    model = Conv2D(32, (3, 3), activation='relu')(model)
-    model = BatchNormalization(axis=3)(model)
-    model = Activation('relu')(model)
-    model = MaxPooling2D((3, 3))(model)
+    # model = Conv2D(32, (3, 3), activation='relu')(model)
+    # model = BatchNormalization(axis=3)(model)
+    # model = Activation('relu')(model)
+    # model = MaxPooling2D((3, 3))(model)
 
-    model = Conv2D(64, (3, 3), activation='relu')(model)
-    model = MaxPooling2D((3, 3))(model)
+    # model = Conv2D(64, (3, 3), activation='relu')(model)
+    # model = MaxPooling2D((3, 3))(model)
 
 
-    model = Conv2D(128, (3, 3), activation='relu')(model)
-    model = BatchNormalization(axis=3)(model)
-    model = Activation('relu')(model)
-    model = MaxPooling2D((3, 3))(model)
+    # model = Conv2D(128, (3, 3), activation='relu')(model)
+    # model = BatchNormalization(axis=3)(model)
+    # model = Activation('relu')(model)
+    # model = MaxPooling2D((3, 3))(model)
 
-    model = Conv2D(256, (3, 3), activation='relu')(model)
-    model = MaxPooling2D((3, 3))(model)
+    # model = Conv2D(256, (3, 3), activation='relu')(model)
+    # model = MaxPooling2D((3, 3))(model)
 
-    model = Dropout(.5)(model)
-    model = Flatten()(model)
+    # model = Dropout(.5)(model)
+    # model = Flatten()(model)
 
 
     model = Dense(512, activation='relu')(model)
