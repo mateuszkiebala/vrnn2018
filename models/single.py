@@ -33,12 +33,12 @@ keras.backend.set_session(sess)
 def compiled_single_model(model_input_shape):
     input = Input(shape=model_input_shape)
 
-    vgg = VGG16(weights='imagenet', input_shape=model_input_shape)
+    vgg = VGG16(weights='imagenet', input_shape=model_input_shape, include_top=False)
 
     for layer in vgg.layers:
         layer.trainable = False
 
-    output_vgg = VGG16(weights='imagenet', include_top=False)(input)
+    output_vgg = vgg(input)
 
     model = Flatten()(output_vgg)
     # model = Dense(512, activation='relu')(model)
