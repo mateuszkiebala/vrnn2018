@@ -23,12 +23,15 @@ args = parser.parse_args()
 
 def compiled_single_model(model_input_shape):
     input = Input(shape=model_input_shape)
-    model = VGG16(weights='imagenet')(input)
 
-    for layer in model.layers:
-        layer.trainable = False
+    vgg = VGG16(weights='imagenet')
 
-    model = ZeroPadding2D((3, 3))(input)
+    for layer in vgg.layers:
+        layer.trainable = Falsess
+
+    vggmodel = VGG16(weights='imagenet')(input)
+
+    model = ZeroPadding2D((3, 3))(vggmodel)
 
     model = Conv2D(32, (3, 3), activation='relu')(model)
     model = BatchNormalization(axis=3)(model)
