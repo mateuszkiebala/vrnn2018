@@ -27,11 +27,13 @@ def compiled_single_model(model_input_shape):
     vgg = VGG16(weights='imagenet')
 
     for layer in vgg.layers:
-        layer.trainable = Falsess
+        layer.trainable = False
 
     vggmodel = VGG16(weights='imagenet')(input)
 
-    model = ZeroPadding2D((3, 3))(vggmodel)
+    model = Flatten()(vggmodel)
+
+    model = ZeroPadding2D((3, 3))(model)
 
     model = Conv2D(32, (3, 3), activation='relu')(model)
     model = BatchNormalization(axis=3)(model)
