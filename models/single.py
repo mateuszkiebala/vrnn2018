@@ -38,7 +38,7 @@ def compiled_single_model(model_input_shape):
     for layer in vgg.layers:
         layer.trainable = False
 
-    output_vgg = VGG16(weights='imagenet')(input)
+    output_vgg = VGG16(weights='imagenet', include_top=False, input_shape=model_input_shape)(input)
 
     model = Flatten()(output_vgg)
     # model = Dense(512, activation='relu')(model)
