@@ -5,6 +5,7 @@ from keras.models import Model, Input, load_model
 from keras.layers import Dense, Dropout, Flatten, Add, Conv2D, MaxPooling2D, ZeroPadding2D, AveragePooling2D, BatchNormalization, Activation, concatenate
 from keras.callbacks import ModelCheckpoint
 from keras.utils import Sequence
+from keras.applications import VGG16
 from keras import backend as K
 from preprocess import Dataset, DataFetcher
 from common.constants import DEFAULT_IMAGE_SIZE, SINGLE_MODEL_NAME, GAMES_ARR_PATH, EPOCHS_BATCH
@@ -22,6 +23,7 @@ args = parser.parse_args()
 
 def compiled_single_model(model_input_shape):
     input = Input(shape=model_input_shape)
+    model = VGG16(weights='imagenet')(input)
     model = ZeroPadding2D((3, 3))(input)
 
     model = Conv2D(32, (3, 3), activation='relu')(model)
