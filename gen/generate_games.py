@@ -7,11 +7,39 @@ from common.constants import *
 parser = argparse.ArgumentParser()
 parser.add_argument('--maxmoves', type=int, default=100, help='Max moves until the game is counted as finished')
 parser.add_argument('--randomgames', type=int, default=25, help='Number of random games played')
-parser.add_argument('--pngs', type=bool, default=False, help='Determines if boards pngs should be generated')
 parser.add_argument('--bookgames', type=int, default=25, help='Number of book games played')
+parser.add_argument('--extlabels', action='store_true', help='Determines if generator should generate extended labels')
+parser.add_argument('--pngs', action='store_true', help='Determines if boards pngs should be generated')
 args = parser.parse_args()
 
 pgn_reader = PgnReader()
+
+def gen_labels(valid, board, next_move, extended=False):
+    if not extended:
+        return [int(valid), int(not valid)]
+
+    uci = str(next_move)
+    from_pos, to_pos = uci[:2], uci[2:]
+
+    from_square = chess.square(ord(from_pos[0]) - ord('a'), int(from_pos[1])-1)
+    to_square = chess.square(ord(to_pos[0]) - ord('a'), int(to_pos[1])-1)
+
+    distance = chess.square_distance(from_square, to_square)
+    distance_vec = [0] * 8
+    distance_vec[distance-1] = 1
+
+    symbol = board.piece_at(from_square).symbol()
+    is_black, is_white = int(symbol.islower()), int(symbol.isupper())
+
+    symbol_vec = [0] * len(PIECE_TO_INT)
+    symbol_vec[PIECE_TO_INT[symbol.lower()]] = 1
+
+    labels = []
+    labels.extend([int(valid), int(not valid)]) # is valid or not valid
+    labels.extend(distance_vec) # what distance
+    labels.extend([is_black, is_white]) # is black or white
+    labels.extend(symbol_vec) # which symbol
+    return labels
 
 def boards_vector(prev_board, next_board):
     return np.array([board2array(prev_board), board2array(next_board)])
@@ -41,8 +69,9 @@ def gen_non_legal_move(board, legal_moves):
     return None
 
 class Generator:
-    def __init__(self, game_number, save_png=False):
+    def __init__(self, game_number, extended_labels=False, save_png=False):
         self.game_number = game_number
+        self.extended_labels = extended_labels
         self.save_png = save_png
         self.result_boards = []
         self.result_vector = []
@@ -56,7 +85,7 @@ class Generator:
         while True:
             random_start_square = chess.SQUARE_NAMES[random.choice(list(available_squares))]
             random_dst_square = chess.SQUARE_NAMES[random.randint(0, 63)]
-            
+
             move = chess.Move.from_uci(random_start_square + random_dst_square)
 
             if move not in board.legal_moves:
@@ -91,7 +120,9 @@ class Generator:
         wrong_board.push(move)
 
         self.result_boards.append(boards_vector(board, wrong_board))
-        self.result_vector.append([0, 1])
+
+        labels = gen_labels(False, board, move, extended=self.extended_labels)
+        self.result_vector.append(labels)
 
         if self.save_png:
             board2png(board, BAD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + ".png")
@@ -167,17 +198,18 @@ class Generator:
         next_move = random.choice(legal_moves)
         next_board = board.copy()
         next_board.push_uci(str(next_move))
-
         self.result_boards.append(boards_vector(board, next_board))
-        self.result_vector.append([1, 0])
+
+        labels = gen_labels(True, board, next_move, extended=self.extended_labels)
+        self.result_vector.append(labels)
 
         self.random_game(next_board, move_number + 1)
-    
+
     def results(self):
         return self.result_boards, self.result_vector
 
 def generate_random_game(i):
-    generator = Generator(i, save_png=args.pngs)
+    generator = Generator(i, extended_labels=args.extlabels, save_png=args.pngs)
     generator.random_game()
     return generator.results()
 

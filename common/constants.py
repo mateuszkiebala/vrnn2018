@@ -22,6 +22,8 @@ SAVE_WRONG_MOVE_PROBABILITY = 0.07
 
 EPOCHS_BATCH = 20
 
+PIECE_TO_INT = {"p": 0, "n": 1, "b": 2, "r": 3, "q": 4, "k": 5}
+
 def dataset_path():
     return path.join(GAMES_ARR_PATH, BOARDS_FILE_NAME), path.join(GAMES_ARR_PATH, RESULTS_FILE_NAME)
 
