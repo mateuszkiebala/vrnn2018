@@ -9,15 +9,24 @@ from preprocess import Dataset
 from common.constants import DEFAULT_IMAGE_SIZE
 
 # constants
-num_classes = 2 # 0 or 1
 input_shape = (DEFAULT_IMAGE_SIZE, DEFAULT_IMAGE_SIZE, 3)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--batches', type=int, default=64, help='Number of batches')
 parser.add_argument('--epochs', type=int, default=10, help='Number of epochs')
+parser.add_argument('--extlabels', action='store_true', help='Determines if generator should generate extended labels')
 parser.add_argument('--plot-model', action='store_true', help='Determines if structure of the model should be plotted')
 parser.add_argument('--plot-history', action='store_true', help='Determines if history of loss and accuracy should be plotted')
 args = parser.parse_args()
+
+if args.extlabels:
+    num_classes = 18
+    loss = keras.losses.binary_crossentropy
+    last_activation = 'sigmoid'
+else:
+    num_classes = 2
+    loss = keras.losses.categorical_crossentropy
+    last_activation = 'softmax'
 
 dataset = Dataset()
 dataset.load(split=False, shuffle=True)
@@ -61,15 +70,14 @@ merged_model = Dense(64, activation='relu')(merged_model)
 merged_model = Dropout(.5)(merged_model)
 merged_model = Dense(32, activation='relu', kernel_regularizer=l2(0.01), activity_regularizer=l1(0.01))(merged_model)
 merged_model = Dropout(.5)(merged_model)
-merged_model = Dense(num_classes, activation='softmax')(merged_model)
-
+merged_model = Dense(num_classes, activation=last_activation)(merged_model)
 whole_model = Model([before_model.input, after_model.input], merged_model)
 
 if args.plot_model:
     plot_model(whole_model, to_file='model.png')
 
 whole_model.compile(
-    loss=keras.losses.categorical_crossentropy,
+    loss=loss,
     optimizer=keras.optimizers.Adam(),
     metrics=['accuracy'],
 )

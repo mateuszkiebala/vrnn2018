@@ -12,15 +12,24 @@ from preprocess import Dataset, DataFetcher
 from common.constants import DEFAULT_IMAGE_SIZE, SINGLE_MODEL_NAME, GAMES_ARR_PATH, EPOCHS_BATCH
 
 # constants
-num_classes = 2 # 0 or 1
 input_shape = (DEFAULT_IMAGE_SIZE, DEFAULT_IMAGE_SIZE*2, 3)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--batches', type=int, default=64, help='Number of batches')
 parser.add_argument('--epochs', type=int, default=10, help='Number of epochs')
+parser.add_argument('--extlabels', action='store_true', help='Determines if generator should generate extended labels')
 parser.add_argument('--plot-model', action='store_true', help='Determines if structure of the model should be plotted')
 parser.add_argument('--plot-history', action='store_true', help='Determines if history of loss and accuracy should be plotted')
 args = parser.parse_args()
+
+if args.extlabels:
+    num_classes = 18
+    loss = keras.losses.binary_crossentropy
+    last_activation = 'sigmoid'
+else:
+    num_classes = 2
+    loss = keras.losses.categorical_crossentropy
+    last_activation = 'softmax'
 
 os.environ["CUDA_VISIBLE_DEVICES"]="3"
 
@@ -53,12 +62,11 @@ def compiled_single_model(model_input_shape):
     model = Dropout(.5)(model)
     model = Dense(64, activation='relu')(model)
     model = Dropout(.5)(model)
-
-    model = Dense(num_classes, activation='softmax')(model)
+    model = Dense(num_classes, activation=last_activation)(model)
     model = Model(inputs=input, outputs=model)
 
     model.compile(
-        loss=keras.losses.categorical_crossentropy,
+        loss=loss,
         optimizer=keras.optimizers.Adadelta(),
         metrics=['accuracy'],
     )
