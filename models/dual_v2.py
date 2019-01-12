@@ -5,6 +5,7 @@ from keras.layers import Dense, Dropout, Flatten, Add, Conv2D, MaxPooling2D, Zer
 from keras.regularizers import l1, l2
 from preprocess import Dataset
 from common.constants import DEFAULT_IMAGE_SIZE, DUAL_MODEL_NAME
+from train import train_and_evaluate
 
 # constants
 input_shape = (DEFAULT_IMAGE_SIZE, DEFAULT_IMAGE_SIZE, 3)
@@ -50,16 +51,12 @@ def compiled_dual_model():
     merged_model = MaxPooling2D((3, 3))(merged_model)
     merged_model = Dropout(.5)(merged_model)
     merged_model = Flatten()(merged_model)
-    merged_model = Dense(512, activation='relu', kernel_regularizer=l2(0.01), activity_regularizer=l1(0.01))(merged_model)
-    merged_model = Dropout(.5)(merged_model)
-    merged_model = Dense(256, activation='relu')(merged_model)
-    merged_model = Dropout(.5)(merged_model)
     merged_model = Dense(128, activation='relu', kernel_regularizer=l2(0.01), activity_regularizer=l1(0.01))(merged_model)
-    merged_model = Dropout(.5)(merged_model)
+    merged_model = Dropout(.2)(merged_model)
     merged_model = Dense(64, activation='relu')(merged_model)
-    merged_model = Dropout(.5)(merged_model)
+    merged_model = Dropout(.2)(merged_model)
     merged_model = Dense(32, activation='relu', kernel_regularizer=l2(0.01), activity_regularizer=l1(0.01))(merged_model)
-    merged_model = Dropout(.5)(merged_model)
+    merged_model = Dropout(.2)(merged_model)
     merged_model = Dense(num_classes, activation=last_activation)(merged_model)
     whole_model = Model([before_model.input, after_model.input], merged_model)
 

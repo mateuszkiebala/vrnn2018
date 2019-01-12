@@ -52,13 +52,13 @@ def compiled_dual_model():
 
     merged_model = concatenate([before_model.output, after_model.output],axis=-1)
     merged_model = Dense(512, activation='relu')(merged_model)
-    merged_model = Dropout(.5)(merged_model)
+    merged_model = Dropout(.1)(merged_model)
     merged_model = Dense(256, activation='relu')(merged_model)
-    merged_model = Dropout(.5)(merged_model)
+    merged_model = Dropout(.1)(merged_model)
     merged_model = Dense(128, activation='relu')(merged_model)
-    merged_model = Dropout(.5)(merged_model)
+    merged_model = Dropout(.1)(merged_model)
     merged_model = Dense(64, activation='relu')(merged_model)
-    merged_model = Dropout(.5)(merged_model)
+    merged_model = Dropout(.1)(merged_model)
     merged_model = Dense(num_classes, activation=last_activation)(merged_model)
     whole_model = Model([before_model.input, after_model.input], merged_model)
 
