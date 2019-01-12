@@ -30,6 +30,7 @@ def train_and_evaluate(model, epochs, batches, dual=False, plot_history=False, p
                 verbose=1,
                 validation_data=([x_test1, x_test2], y_test),
             )
+            model.save(DUAL_MODEL_NAME)
         else:
             (x_train, y_train), (x_test, y_test) = samples
 
@@ -41,9 +42,9 @@ def train_and_evaluate(model, epochs, batches, dual=False, plot_history=False, p
                 verbose=1,
                 validation_data=(x_test, y_test),
             )
+            model.save(SINGLE_MODEL_NAME)
 
         current_epochs += EPOCHS_BATCH
-        model.save(SINGLE_MODEL_NAME)
 
     if plot_history:
         import matplotlib.pyplot as plt
