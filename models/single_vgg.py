@@ -78,7 +78,7 @@ except Exception:
     create_model = True
 
 if create_model:
-    print("Creating new single model")
+    print("Creating new single vgg model")
     model = compiled_single_model(input_shape)
 
 train_and_evaluate(model, args.epochs, args.batches, plot_history=args.plot_history, plot_model=args.plot_model)

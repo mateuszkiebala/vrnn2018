@@ -8,13 +8,13 @@ class DataFetcher:
     def __init__(self):
         self.dirs = [dir for dir in os.listdir(GAMES_ARR_PATH) if os.path.isdir(os.path.join(GAMES_ARR_PATH, dir))]
 
-    def fetch_inf(self):
+    def fetch_inf(self, type='concat'):
         while True:
             for dir in self.dirs:
                 dataset = Dataset()
                 dataset.load(number=dir)
 
-                yield dataset.data(type='concat')
+                yield dataset.data(type=type)
 
 class Dataset:
     def __init__(self):

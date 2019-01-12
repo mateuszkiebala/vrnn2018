@@ -1,8 +1,8 @@
 from keras import utils
 from preprocess import Dataset, DataFetcher
-from common.constants import SINGLE_MODEL_NAME, EPOCHS_BATCH
+from common.constants import SINGLE_MODEL_NAME, DUAL_MODEL_NAME, EPOCHS_BATCH
 
-def train_and_evaluate(model, epochs, batches, plot_history=False, plot_model=False):
+def train_and_evaluate(model, epochs, batches, dual=False, plot_history=False, plot_model=False):
     if plot_model:
         utils.plot_model(model, to_file='model.png')
 
@@ -10,20 +10,37 @@ def train_and_evaluate(model, epochs, batches, plot_history=False, plot_model=Fa
     current_epochs = 0
     history = None
 
-    for samples in fetcher.fetch_inf():
+    if dual:
+        data_type = 'split'
+    else:
+        data_type = 'concat'
+
+    for samples in fetcher.fetch_inf(type=data_type):
         if current_epochs >= epochs:
             break
 
-        (x_train, y_train), (x_test, y_test) = samples
+        if dual:
+            (x_train1, x_train2, y_train), (x_test1, x_test2, y_test) = samples
 
-        history = model.fit(
-            x_train, y_train,
-            batch_size=batches,
-            epochs=EPOCHS_BATCH + current_epochs,
-            initial_epoch=current_epochs,
-            verbose=1,
-            validation_data=(x_test, y_test),
-        )
+            history = model.fit(
+                [x_train1, x_train2], y_train,
+                batch_size=batches,
+                epochs=EPOCHS_BATCH + current_epochs,
+                initial_epoch=current_epochs,
+                verbose=1,
+                validation_data=([x_test1, x_test2], y_test),
+            )
+        else:
+            (x_train, y_train), (x_test, y_test) = samples
+
+            history = model.fit(
+                x_train, y_train,
+                batch_size=batches,
+                epochs=EPOCHS_BATCH + current_epochs,
+                initial_epoch=current_epochs,
+                verbose=1,
+                validation_data=(x_test, y_test),
+            )
 
         current_epochs += EPOCHS_BATCH
         model.save(SINGLE_MODEL_NAME)
@@ -52,7 +69,14 @@ def train_and_evaluate(model, epochs, batches, plot_history=False, plot_model=Fa
     dataset = Dataset()
     dataset.load(number=0)
 
-    (x_train, y_train), (x_test, y_test) = dataset.data(type='concat')
-    score = model.evaluate(x_test, y_test, verbose=0)
+    if dual:
+        (x_train1, x_train2, y_train), (x_test1, x_test2, y_test) = dataset.data(type='split')
+        score = model.evaluate([x_test1, x_test2], y_test, verbose=0)
+        model.save(DUAL_MODEL_NAME)
+    else:
+        (x_train, y_train), (x_test, y_test) = dataset.data(type='concat')
+        score = model.evaluate(x_test, y_test, verbose=0)
+        model.save(SINGLE_MODEL_NAME)
 
-    model.save(SINGLE_MODEL_NAME)
+    print('Test loss:', score[0])
+    print('Test accuracy:', score[1])

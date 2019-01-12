@@ -11,6 +11,7 @@ BOARDS_FILE_NAME = "boards.npy"
 RESULTS_FILE_NAME = "results.npy"
 
 SINGLE_MODEL_NAME = "single_model.h5"
+DUAL_MODEL_NAME = "dual_model.h5"
 
 DEFAULT_IMAGE_SIZE = 200 # size (width, height) of an image
 
