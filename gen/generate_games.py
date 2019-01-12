@@ -106,8 +106,9 @@ class Generator:
             non_legal_board = board.copy()
             non_legal_board.push(non_legal_move)
 
+            labels = gen_labels(False, board, non_legal_move, extended=self.extended_labels)
             self.result_boards.append(boards_vector(board, non_legal_board))
-            self.result_vector.append([0, 1])
+            self.result_vector.append(labels)
 
             if self.save_png:
                 board2png(board, BAD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + ".png")
@@ -119,9 +120,8 @@ class Generator:
         wrong_board = board.copy()
         wrong_board.push(move)
 
-        self.result_boards.append(boards_vector(board, wrong_board))
-
         labels = gen_labels(False, board, move, extended=self.extended_labels)
+        self.result_boards.append(boards_vector(board, wrong_board))
         self.result_vector.append(labels)
 
         if self.save_png:
@@ -163,10 +163,12 @@ class Generator:
             next_board = board.copy()
             next_board.push(move)
 
+
             if random.random() < SAVE_LEGAL_MOVE_PROBABILITY:
                 print("[Game {}] Saving correct move {}".format(self.game_number, move_number))
+                labels = gen_labels(False, board, move, extended=self.extended_labels)
                 self.result_boards.append(boards_vector(board, next_board))
-                self.result_vector.append([1, 0])
+                self.result_vector.append(labels)
                 if self.save_png:
                     board2png(board, GOOD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + ".png")
                     board2png(next_board, GOOD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + "-next.png")
@@ -198,9 +200,9 @@ class Generator:
         next_move = random.choice(legal_moves)
         next_board = board.copy()
         next_board.push_uci(str(next_move))
-        self.result_boards.append(boards_vector(board, next_board))
 
         labels = gen_labels(True, board, next_move, extended=self.extended_labels)
+        self.result_boards.append(boards_vector(board, next_board))
         self.result_vector.append(labels)
 
         self.random_game(next_board, move_number + 1)
@@ -214,9 +216,8 @@ def generate_random_game(i):
     return generator.results()
 
 def generate_book_game(i):
-    generator = Generator(i, save_png=args.pngs)
+    generator = Generator(i, extended_labels=args.extlabels, save_png=args.pngs)
     generator.book_game()
-
     return generator.results()
 
 def save_dataset(all_boards, all_results, number=None):
