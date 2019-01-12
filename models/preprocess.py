@@ -4,18 +4,16 @@ from sklearn import utils
 from sklearn.model_selection import train_test_split
 from common.constants import dataset_path, dataset_number_path, GAMES_ARR_PATH
 
-class DataFetcher():
-
+class DataFetcher:
     def __init__(self):
         self.dirs = [dir for dir in os.listdir(GAMES_ARR_PATH) if os.path.isdir(os.path.join(GAMES_ARR_PATH, dir))]
 
     def fetch_inf(self):
         while True:
             for dir in self.dirs:
-
                 dataset = Dataset()
-                dataset.load(dir)
-                
+                dataset.load(number=dir)
+
                 yield dataset.data(type='concat')
 
 class Dataset:
@@ -23,7 +21,7 @@ class Dataset:
         self._data = None
         self._splited = False
 
-    def load(self, split=True, number=None, shuffle=True):
+    def load(self, number=None, split=True, shuffle=True):
         if number is not None:
             boards_path, results_path = dataset_number_path(number)
             print("boards path:{}, number {}".format(boards_path, str(number)))

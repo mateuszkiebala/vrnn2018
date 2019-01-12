@@ -3,12 +3,9 @@ import tensorflow as tf
 from keras.utils import plot_model
 from keras.models import Model, Input, load_model
 from keras.layers import Dense, Dropout, Flatten, Add, Conv2D, MaxPooling2D, ZeroPadding2D, AveragePooling2D, BatchNormalization, Activation, concatenate
-from keras.callbacks import ModelCheckpoint
-from keras.utils import Sequence
 from keras.applications import VGG16
-from keras import backend as K
-from preprocess import Dataset, DataFetcher
-from common.constants import DEFAULT_IMAGE_SIZE, SINGLE_MODEL_NAME, GAMES_ARR_PATH, EPOCHS_BATCH
+from common.constants import DEFAULT_IMAGE_SIZE, GAMES_ARR_PATH, SINGLE_MODEL_NAME
+from train import train_and_evaluate
 
 # constants
 input_shape = (DEFAULT_IMAGE_SIZE, DEFAULT_IMAGE_SIZE*2, 3)
@@ -40,7 +37,7 @@ keras.backend.set_session(sess)
 def compiled_single_model(model_input_shape):
     input = Input(shape=model_input_shape)
 
-    model = ZeroPadding2D((3, 3))(model)
+    model = ZeroPadding2D((3, 3))(input)
 
     model = Conv2D(32, (3, 3), activation='relu')(model)
     model = BatchNormalization(axis=3)(model)
@@ -84,7 +81,6 @@ def compiled_single_model(model_input_shape):
 
     return model
 
-
 # Model
 try:
     model = load_model(SINGLE_MODEL_NAME)
@@ -97,57 +93,4 @@ if create_model:
     print("Creating new single model")
     model = compiled_single_model(input_shape)
 
-
-if args.plot_model:
-    plot_model(model, to_file='model.png')
-
-fetcher = DataFetcher()
-current_epochs = 0
-history = None
-
-for samples in fetcher.fetch_inf():
-    if current_epochs >= args.epochs:
-        break
-
-    (x_train, y_train), (x_test, y_test) = samples
-
-    history = model.fit(
-        x_train, y_train,
-        batch_size=args.batches,
-        epochs=EPOCHS_BATCH + current_epochs,
-        initial_epoch=current_epochs,
-        verbose=1,
-        validation_data=(x_test, y_test),
-    )
-
-    current_epochs += EPOCHS_BATCH
-    model.save(SINGLE_MODEL_NAME)
-
-if args.plot_history:
-    import matplotlib.pyplot as plt
-
-    # Plot training & validation accuracy values
-    plt.plot(history.history['acc'])
-    plt.plot(history.history['val_acc'])
-    plt.title('Model accuracy')
-    plt.ylabel('Accuracy')
-    plt.xlabel('Epoch')
-    plt.legend(['Train', 'Test'], loc='upper left')
-    plt.show()
-
-    # Plot training & validation loss values
-    plt.plot(history.history['loss'])
-    plt.plot(history.history['val_loss'])
-    plt.title('Model loss')
-    plt.ylabel('Loss')
-    plt.xlabel('Epoch')
-    plt.legend(['Train', 'Test'], loc='upper left')
-    plt.show()
-
-dataset = Dataset()
-dataset.load(number=0)
-
-(x_train, y_train), (x_test, y_test) = dataset.data(type='concat')
-score = model.evaluate(x_test, y_test, verbose=0)
-
-model.save(SINGLE_MODEL_NAME)
+train_and_evaluate(model, args.epochs, args.batches, plot_history=args.plot_history, plot_model=args.plot_model)
