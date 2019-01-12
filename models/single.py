@@ -1,6 +1,5 @@
 import keras, argparse, os
 import tensorflow as tf
-import matplotlib.pyplot as plt
 from keras.utils import plot_model
 from keras.models import Model, Input, load_model
 from keras.layers import Dense, Dropout, Flatten, Add, Conv2D, MaxPooling2D, ZeroPadding2D, AveragePooling2D, BatchNormalization, Activation, concatenate
@@ -125,6 +124,8 @@ for samples in fetcher.fetch_inf():
     model.save(SINGLE_MODEL_NAME)
 
 if args.plot_history:
+    import matplotlib.pyplot as plt
+
     # Plot training & validation accuracy values
     plt.plot(history.history['acc'])
     plt.plot(history.history['val_acc'])

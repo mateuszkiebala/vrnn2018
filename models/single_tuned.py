@@ -1,5 +1,4 @@
 import keras, argparse, os
-#import matplotlib.pyplot as plt
 from keras.utils import plot_model
 from keras.models import Model, Input, load_model
 from keras.layers import Dense, Dropout, Flatten, Add, Conv2D, MaxPooling2D, ZeroPadding2D, AveragePooling2D, BatchNormalization, Activation, concatenate
@@ -10,15 +9,24 @@ from preprocess import Dataset, DataFetcher
 from common.constants import DEFAULT_IMAGE_SIZE, SINGLE_MODEL_NAME, GAMES_ARR_PATH, EPOCHS_BATCH
 
 # constants
-num_classes = 2 # 0 or 1
 input_shape = (DEFAULT_IMAGE_SIZE, DEFAULT_IMAGE_SIZE*2, 3)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--batches', type=int, default=64, help='Number of batches')
 parser.add_argument('--epochs', type=int, default=10, help='Number of epochs')
+parser.add_argument('--extlabels', action='store_true', help='Determines if generator should generate extended labels')
 parser.add_argument('--plot-model', action='store_true', help='Determines if structure of the model should be plotted')
 parser.add_argument('--plot-history', action='store_true', help='Determines if history of loss and accuracy should be plotted')
 args = parser.parse_args()
+
+if args.extlabels:
+    num_classes = 18
+    loss = keras.losses.binary_crossentropy
+    last_activation = 'sigmoid'
+else:
+    num_classes = 2
+    loss = keras.losses.categorical_crossentropy
+    last_activation = 'softmax'
 
 def compiled_single_model(model_input_shape):
     input = Input(shape=model_input_shape)
@@ -31,7 +39,7 @@ def compiled_single_model(model_input_shape):
 
     model = Conv2D(64, (3, 3), activation='relu')(model)
     model = MaxPooling2D((3, 3))(model)
-    
+
 
     model = Conv2D(128, (3, 3), activation='relu')(model)
     model = BatchNormalization(axis=3)(model)
@@ -56,11 +64,11 @@ def compiled_single_model(model_input_shape):
     model = Dense(64, activation='relu')(model)
     model = Dropout(.25)(model)
 
-    model = Dense(num_classes, activation='softmax')(model)
+    model = Dense(num_classes, activation=last_activation)(model)
     model = Model(inputs=input, outputs=model)
 
     model.compile(
-        loss=keras.losses.categorical_crossentropy,
+        loss=loss,
         optimizer=keras.optimizers.Adadelta(),
         metrics=['accuracy'],
     )
@@ -108,24 +116,26 @@ for samples in fetcher.fetch_inf():
     model.save(SINGLE_MODEL_NAME)
 
 
-#if args.plot_history:
-#    # Plot training & validation accuracy values
-#    plt.plot(history.history['acc'])
-#    plt.plot(history.history['val_acc'])
-#    plt.title('Model accuracy')
-#    plt.ylabel('Accuracy')
-#    plt.xlabel('Epoch')
-#    plt.legend(['Train', 'Test'], loc='upper left')
-#    plt.show()
-#
-#    # Plot training & validation loss values
-#    plt.plot(history.history['loss'])
-#    plt.plot(history.history['val_loss'])
-#    plt.title('Model loss')
-#    plt.ylabel('Loss')
-#    plt.xlabel('Epoch')
-#    plt.legend(['Train', 'Test'], loc='upper left')
-#    plt.show()
+if args.plot_history:
+    import matplotlib.pyplot as plt
+
+    # Plot training & validation accuracy values
+    plt.plot(history.history['acc'])
+    plt.plot(history.history['val_acc'])
+    plt.title('Model accuracy')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epoch')
+    plt.legend(['Train', 'Test'], loc='upper left')
+    plt.show()
+
+    # Plot training & validation loss values
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('Model loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(['Train', 'Test'], loc='upper left')
+    plt.show()
 
 dataset = Dataset()
 dataset.load(0)
