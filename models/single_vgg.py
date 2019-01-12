@@ -33,27 +33,14 @@ keras.backend.set_session(sess)
 def compiled_single_model(model_input_shape):
     input = Input(shape=model_input_shape)
 
-    model = ZeroPadding2D((3, 3))(model)
+    vgg = VGG16(weights='imagenet', input_shape=model_input_shape, include_top=False)
 
-    model = Conv2D(32, (3, 3), activation='relu')(model)
-    model = BatchNormalization(axis=3)(model)
-    model = Activation('relu')(model)
-    model = MaxPooling2D((3, 3))(model)
+    for layer in vgg.layers:
+        layer.trainable = False
 
-    model = Conv2D(64, (3, 3), activation='relu')(model)
-    model = MaxPooling2D((3, 3))(model)
+    output_vgg = vgg(input)
 
-
-    model = Conv2D(128, (3, 3), activation='relu')(model)
-    model = BatchNormalization(axis=3)(model)
-    model = Activation('relu')(model)
-    model = MaxPooling2D((3, 3))(model)
-
-    model = Conv2D(256, (3, 3), activation='relu')(model)
-    model = MaxPooling2D((3, 3))(model)
-
-    model = Dropout(.5)(model)
-    model = Flatten()(model)
+    model = Flatten()(output_vgg)
 
     model = Dense(512, activation='relu')(model)
     model = Dropout(.5)(model)
