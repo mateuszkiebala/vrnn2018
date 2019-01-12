@@ -42,7 +42,7 @@ def half_model():
     model = Conv2D(512, (3, 3), activation='relu', kernel_initializer=keras.initializers.RandomUniform(minval=-0.00005, maxval=0.00005, seed=None))(model)
     model = MaxPooling2D((3, 3))(model)
     # model = AveragePooling2D((6, 6), name='avg_pool')(model)
-    model = Dropout(.5)(model)
+    model = Dropout(.25)(model)
     model = Flatten()(model)
     return Model(inputs=input, outputs=model)
 
