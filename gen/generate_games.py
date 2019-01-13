@@ -36,9 +36,9 @@ def gen_labels(valid, board, next_move, extended=False):
 
     labels = []
     labels.extend([int(valid), int(not valid)]) # is valid or not valid
-    labels.extend(distance_vec) # what distance
-    labels.extend([is_black, is_white]) # is black or white
-    labels.extend(symbol_vec) # which symbol
+    # labels.extend(distance_vec) # what distance
+    # labels.extend([is_black, is_white]) # is black or white
+    # labels.extend(symbol_vec) # which symbol
     return labels
 
 def boards_vector(prev_board, next_board):
