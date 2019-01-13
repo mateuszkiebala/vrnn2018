@@ -40,17 +40,16 @@ def compiled_single_model(model_input_shape):
 
     model = Conv2D(128, (3, 3), activation='relu')(model)
     model = BatchNormalization(axis=3)(model)
-    
     model = Activation('relu')(model)
     model = MaxPooling2D((3, 3))(model)
 
     model = Conv2D(256, (3, 3), activation='relu')(model)
     model = MaxPooling2D((3, 3))(model)
 
-    model = Conv2D(512, (3, 3), activation='relu')(model)
-    model = MaxPooling2D((3, 3))(model)
-
     model = Flatten()(model)
+
+    model = Dense(256, activation='relu')(model)
+    model = Dropout(.15)(model)
 
     model = Dense(128, activation='relu')(model)
     model = Dropout(.25)(model)
