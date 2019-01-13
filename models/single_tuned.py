@@ -25,10 +25,12 @@ sess = tf.Session(config=config)
 keras.backend.set_session(sess)
 
 if args.extlabels:
+    print("extlabels")
     num_classes = 18
     loss = keras.losses.binary_crossentropy
     last_activation = 'sigmoid'
 else:
+    print("no extlabels")
     num_classes = 2
     loss = keras.losses.categorical_crossentropy
     last_activation = 'softmax'
@@ -57,12 +59,10 @@ def compiled_single_model(model_input_shape):
     model = Flatten()(model)
 
 
-    model = Dense(256, activation='relu')(model)
-    model = Dense(128, activation='relu')(model)
+    model = Dense(400, activation='relu')(model)
+    model = Dense(200, activation='relu')(model)
     
-    model = Dense(64, activation='relu')(model)
-    model = Dropout(.25)(model)
-    model = Dense(32, activation='relu')(model)
+    model = Dense(100, activation='relu')(model)
     model = Dropout(.25)(model)
 
     model = Dense(num_classes, activation=last_activation)(model)
