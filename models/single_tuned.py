@@ -1,4 +1,5 @@
 import keras, argparse, os
+import tensorflow as tf
 from keras.utils import plot_model
 from keras.models import Model, Input, load_model
 from keras.layers import Dense, Dropout, Flatten, Add, Conv2D, MaxPooling2D, ZeroPadding2D, AveragePooling2D, BatchNormalization, Activation, concatenate
@@ -15,6 +16,13 @@ parser.add_argument('--extlabels', action='store_true', help='Determines if gene
 parser.add_argument('--plot-model', action='store_true', help='Determines if structure of the model should be plotted')
 parser.add_argument('--plot-history', action='store_true', help='Determines if history of loss and accuracy should be plotted')
 args = parser.parse_args()
+
+os.environ["CUDA_VISIBLE_DEVICES"]="1,2,3"
+
+config = tf.ConfigProto()
+config.gpu_options.allow_growth=True
+sess = tf.Session(config=config)
+keras.backend.set_session(sess)
 
 if args.extlabels:
     num_classes = 18
