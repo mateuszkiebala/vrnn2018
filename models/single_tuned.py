@@ -60,10 +60,10 @@ def compiled_single_model(model_input_shape):
 
 
     # model = Dense(400, activation='relu')(model)
-    model = Dense(40, activation='relu')(model)
+    model = Dense(30, activation='relu')(model)
+    model = Dropout(.25)(model)
     
     model = Dense(20, activation='relu')(model)
-    model = Dropout(.25)(model)
 
     model = Dense(num_classes, activation=last_activation)(model)
     model = Model(inputs=input, outputs=model)
