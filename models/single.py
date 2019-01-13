@@ -1,11 +1,8 @@
 import keras, argparse, os
-import tensorflow as tf
-from keras.utils import plot_model
 from keras.models import Model, Input, load_model
 from keras.layers import Dense, Dropout, Flatten, Add, Conv2D, MaxPooling2D, ZeroPadding2D, AveragePooling2D, BatchNormalization, Activation, concatenate
-from keras.applications import VGG16
 from common.constants import DEFAULT_IMAGE_SIZE, GAMES_ARR_PATH, SINGLE_MODEL_NAME
-from train import train_and_evaluate
+from train import train_and_evaluate, setup_gpu
 
 # constants
 input_shape = (DEFAULT_IMAGE_SIZE, DEFAULT_IMAGE_SIZE*2, 3)
@@ -27,12 +24,7 @@ else:
     loss = keras.losses.categorical_crossentropy
     last_activation = 'softmax'
 
-os.environ["CUDA_VISIBLE_DEVICES"]="3"
-
-config = tf.ConfigProto()
-config.gpu_options.allow_growth=True
-sess = tf.Session(config=config)
-keras.backend.set_session(sess)
+setup_gpu()
 
 def compiled_single_model(model_input_shape):
     input = Input(shape=model_input_shape)
@@ -56,20 +48,14 @@ def compiled_single_model(model_input_shape):
     model = Conv2D(256, (3, 3), activation='relu')(model)
     model = MaxPooling2D((3, 3))(model)
 
-    model = Dropout(.5)(model)
+    model = Dropout(.25)(model)
     model = Flatten()(model)
-
-    model = Dense(512, activation='relu')(model)
-    model = Dropout(.5)(model)
-
-    model = Dense(512, activation='relu')(model)
-    model = Dropout(.5)(model)
     model = Dense(256, activation='relu')(model)
-    model = Dropout(.5)(model)
+    model = Dropout(.15)(model)
     model = Dense(128, activation='relu')(model)
-    model = Dropout(.5)(model)
+    model = Dropout(.15)(model)
     model = Dense(64, activation='relu')(model)
-    model = Dropout(.5)(model)
+    model = Dropout(.15)(model)
     model = Dense(num_classes, activation=last_activation)(model)
     model = Model(inputs=input, outputs=model)
 

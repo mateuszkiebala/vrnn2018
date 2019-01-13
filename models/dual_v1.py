@@ -1,5 +1,4 @@
 import keras, argparse
-from keras.utils import plot_model
 from keras.models import Model, Input, load_model
 from keras.layers import Dense, Dropout, Flatten, Add, Conv2D, MaxPooling2D, ZeroPadding2D, AveragePooling2D, BatchNormalization, Activation, concatenate
 from preprocess import Dataset
@@ -29,7 +28,7 @@ else:
 def half_model():
     input = Input(shape=input_shape)
     model = ZeroPadding2D((3, 3))(input)
-    model = Conv2D(64, (3, 3), activation='relu', kernel_initializer=keras.initializers.RandomUniform(minval=-0.00005, maxval=0.00005, seed=None))(model)
+    model = Conv2D(64, (3, 3), activation='relu')(model)
     model = BatchNormalization(axis=3)(model)
     model = Activation('relu')(model)
     model = MaxPooling2D((3, 3))(model)
@@ -39,10 +38,9 @@ def half_model():
     model = BatchNormalization(axis=3)(model)
     model = Activation('relu')(model)
     model = MaxPooling2D((3, 3))(model)
-    model = Conv2D(512, (3, 3), activation='relu', kernel_initializer=keras.initializers.RandomUniform(minval=-0.00005, maxval=0.00005, seed=None))(model)
+    model = Conv2D(512, (3, 3), activation='relu')(model)
     model = MaxPooling2D((3, 3))(model)
-    # model = AveragePooling2D((6, 6), name='avg_pool')(model)
-    model = Dropout(.25)(model)
+    model = Dropout(.1)(model)
     model = Flatten()(model)
     return Model(inputs=input, outputs=model)
 
@@ -52,18 +50,15 @@ def compiled_dual_model():
 
     merged_model = concatenate([before_model.output, after_model.output],axis=-1)
     merged_model = Dense(512, activation='relu')(merged_model)
-    merged_model = Dropout(.1)(merged_model)
+    merged_model = Dropout(.05)(merged_model)
     merged_model = Dense(256, activation='relu')(merged_model)
-    merged_model = Dropout(.1)(merged_model)
+    merged_model = Dropout(.05)(merged_model)
     merged_model = Dense(128, activation='relu')(merged_model)
-    merged_model = Dropout(.1)(merged_model)
+    merged_model = Dropout(.05)(merged_model)
     merged_model = Dense(64, activation='relu')(merged_model)
-    merged_model = Dropout(.1)(merged_model)
+    merged_model = Dropout(.05)(merged_model)
     merged_model = Dense(num_classes, activation=last_activation)(merged_model)
     whole_model = Model([before_model.input, after_model.input], merged_model)
-
-    if args.plot_model:
-        plot_model(whole_model, to_file='model.png')
 
     whole_model.compile(
         loss=loss,

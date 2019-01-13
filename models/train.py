@@ -1,6 +1,16 @@
+import os, keras, tensorflow as tf
 from keras import utils
 from preprocess import Dataset, DataFetcher
 from common.constants import SINGLE_MODEL_NAME, DUAL_MODEL_NAME, EPOCHS_BATCH
+
+def setup_gpu():
+    os.environ["CUDA_VISIBLE_DEVICES"]="3"
+
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth=True
+    sess = tf.Session(config=config)
+    keras.backend.set_session(sess)
+
 
 def train_and_evaluate(model, epochs, batches, dual=False, plot_history=False, plot_model=False):
     if plot_model:

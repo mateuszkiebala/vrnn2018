@@ -1,5 +1,4 @@
 import keras, argparse
-from keras.utils import plot_model
 from keras.models import Model, Input, load_model
 from keras.layers import Dense, Dropout, Flatten, Add, Conv2D, MaxPooling2D, ZeroPadding2D, AveragePooling2D, BatchNormalization, Activation, concatenate
 from keras.regularizers import l1, l2
@@ -49,19 +48,16 @@ def compiled_dual_model():
     merged_model = MaxPooling2D((3, 3))(merged_model)
     merged_model = Conv2D(512, (3, 3), activation='relu')(merged_model)
     merged_model = MaxPooling2D((3, 3))(merged_model)
-    merged_model = Dropout(.25)(merged_model)
+    merged_model = Dropout(.05)(merged_model)
     merged_model = Flatten()(merged_model)
-    merged_model = Dense(128, activation='relu', kernel_regularizer=l2(0.01), activity_regularizer=l1(0.01))(merged_model)
-    merged_model = Dropout(.1)(merged_model)
+    merged_model = Dense(128, activation='relu')(merged_model)
+    merged_model = Dropout(.05)(merged_model)
     merged_model = Dense(64, activation='relu')(merged_model)
-    merged_model = Dropout(.1)(merged_model)
+    merged_model = Dropout(.05)(merged_model)
     merged_model = Dense(32, activation='relu', kernel_regularizer=l2(0.01), activity_regularizer=l1(0.01))(merged_model)
-    merged_model = Dropout(.1)(merged_model)
+    merged_model = Dropout(.05)(merged_model)
     merged_model = Dense(num_classes, activation=last_activation)(merged_model)
     whole_model = Model([before_model.input, after_model.input], merged_model)
-
-    if args.plot_model:
-        plot_model(whole_model, to_file='model.png')
 
     whole_model.compile(
         loss=loss,

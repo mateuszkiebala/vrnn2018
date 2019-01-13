@@ -1,9 +1,8 @@
 import keras, argparse, os
-from keras.utils import plot_model
 from keras.models import Model, Input, load_model
 from keras.layers import Dense, Dropout, Flatten, Add, Conv2D, MaxPooling2D, ZeroPadding2D, AveragePooling2D, BatchNormalization, Activation, concatenate
 from common.constants import DEFAULT_IMAGE_SIZE, SINGLE_MODEL_NAME, GAMES_ARR_PATH
-from train import train_and_evaluate
+from train import setup_gpu, train_and_evaluate
 
 # constants
 input_shape = (DEFAULT_IMAGE_SIZE, DEFAULT_IMAGE_SIZE*2, 3)
@@ -24,6 +23,8 @@ else:
     num_classes = 2
     loss = keras.losses.categorical_crossentropy
     last_activation = 'softmax'
+
+setup_gpu()
 
 def compiled_single_model(model_input_shape):
     input = Input(shape=model_input_shape)
