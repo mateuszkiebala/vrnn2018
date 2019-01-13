@@ -29,6 +29,7 @@ def compiled_single_model(model_input_shape):
     input = Input(shape=model_input_shape)
     model = ZeroPadding2D((3, 3))(input)
 
+    model = Conv2D(16, (3, 3), activation='relu')(model)
     model = Conv2D(32, (3, 3), activation='relu')(model)
     model = BatchNormalization(axis=3)(model)
     model = Activation('relu')(model)
@@ -49,12 +50,12 @@ def compiled_single_model(model_input_shape):
     model = Flatten()(model)
 
     model = Dense(256, activation='relu')(model)
-    model = Dropout(.5)(model)
+    model = Dropout(.25)(model)
 
-    model = Dense(128, activation='relu')(model)
-    model = Dropout(.25)(model)
-    model = Dense(64, activation='relu')(model)
-    model = Dropout(.25)(model)
+    # model = Dense(128, activation='relu')(model)
+    # model = Dropout(.25)(model)
+    # model = Dense(64, activation='relu')(model)
+    # model = Dropout(.25)(model)
 
     model = Dense(num_classes, activation=last_activation)(model)
     model = Model(inputs=input, outputs=model)
