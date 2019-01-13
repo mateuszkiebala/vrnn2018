@@ -1,30 +1,15 @@
-import keras, argparse
+import keras
 from keras.models import Model, Input, load_model
 from keras.layers import Dense, Dropout, Flatten, Add, Conv2D, MaxPooling2D, ZeroPadding2D, AveragePooling2D, BatchNormalization, Activation, concatenate
 from keras.regularizers import l1, l2
 from preprocess import Dataset
 from common.constants import DEFAULT_IMAGE_SIZE, DUAL_MODEL_NAME
-from train import train_and_evaluate
+from train import parse_args, train_and_evaluate
 
 # constants
 input_shape = (DEFAULT_IMAGE_SIZE, DEFAULT_IMAGE_SIZE, 3)
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--batches', type=int, default=64, help='Number of batches')
-parser.add_argument('--epochs', type=int, default=10, help='Number of epochs')
-parser.add_argument('--extlabels', action='store_true', help='Determines if generator should generate extended labels')
-parser.add_argument('--plot-model', action='store_true', help='Determines if structure of the model should be plotted')
-parser.add_argument('--plot-history', action='store_true', help='Determines if history of loss and accuracy should be plotted')
-args = parser.parse_args()
-
-if args.extlabels:
-    num_classes = 18
-    loss = keras.losses.binary_crossentropy
-    last_activation = 'sigmoid'
-else:
-    num_classes = 2
-    loss = keras.losses.categorical_crossentropy
-    last_activation = 'softmax'
+args = parse_args()
 
 def half_model():
     input = Input(shape=input_shape)
@@ -56,11 +41,14 @@ def compiled_dual_model():
     merged_model = Dropout(.05)(merged_model)
     merged_model = Dense(32, activation='relu', kernel_regularizer=l2(0.01), activity_regularizer=l1(0.01))(merged_model)
     merged_model = Dropout(.05)(merged_model)
-    merged_model = Dense(num_classes, activation=last_activation)(merged_model)
+    merged_model = Dense(args.num_classes, activation=args.last_activation)(merged_model)
     whole_model = Model([before_model.input, after_model.input], merged_model)
 
+    if len(args.gpus) > 1:
+        model = keras.utils.multi_gpu_model(model, len(args.gpus), cpu_merge=False)
+
     whole_model.compile(
-        loss=loss,
+        loss=args.loss,
         optimizer=keras.optimizers.Adam(),
         metrics=['accuracy'],
     )
@@ -79,4 +67,4 @@ if create_model:
     print("Creating new dual v2 model")
     model = compiled_dual_model()
 
-train_and_evaluate(model, args.epochs, args.batches, dual=True, plot_history=args.plot_history, plot_model=args.plot_model)
+train_and_evaluate(model, args.epochs, args.batches, gpus=args.gpus, dual=True, plot_history=args.plot_history, plot_model=args.plot_model)

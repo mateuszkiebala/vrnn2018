@@ -1,30 +1,13 @@
-import keras, argparse, os
+import keras, os
 from keras.models import Model, Input, load_model
 from keras.layers import Dense, Dropout, Flatten, Add, Conv2D, MaxPooling2D, ZeroPadding2D, AveragePooling2D, BatchNormalization, Activation, concatenate
 from common.constants import DEFAULT_IMAGE_SIZE, GAMES_ARR_PATH, SINGLE_MODEL_NAME
-from train import train_and_evaluate, setup_gpu
+from train import parse_args, train_and_evaluate
 
 # constants
 input_shape = (DEFAULT_IMAGE_SIZE, DEFAULT_IMAGE_SIZE*2, 3)
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--batches', type=int, default=64, help='Number of batches')
-parser.add_argument('--epochs', type=int, default=10, help='Number of epochs')
-parser.add_argument('--extlabels', action='store_true', help='Determines if generator should generate extended labels')
-parser.add_argument('--plot-model', action='store_true', help='Determines if structure of the model should be plotted')
-parser.add_argument('--plot-history', action='store_true', help='Determines if history of loss and accuracy should be plotted')
-args = parser.parse_args()
-
-if args.extlabels:
-    num_classes = 18
-    loss = keras.losses.binary_crossentropy
-    last_activation = 'sigmoid'
-else:
-    num_classes = 2
-    loss = keras.losses.categorical_crossentropy
-    last_activation = 'softmax'
-
-setup_gpu()
+args = parse_args()
 
 def compiled_single_model(model_input_shape):
     input = Input(shape=model_input_shape)
@@ -56,11 +39,14 @@ def compiled_single_model(model_input_shape):
     model = Dropout(.15)(model)
     model = Dense(64, activation='relu')(model)
     model = Dropout(.15)(model)
-    model = Dense(num_classes, activation=last_activation)(model)
+    model = Dense(args.num_classes, activation=args.last_activation)(model)
     model = Model(inputs=input, outputs=model)
 
+    if len(args.gpus) > 1:
+        model = keras.utils.multi_gpu_model(model, len(args.gpus), cpu_merge=False)
+
     model.compile(
-        loss=loss,
+        loss=args.loss,
         optimizer=keras.optimizers.Adadelta(),
         metrics=['accuracy'],
     )
@@ -79,4 +65,4 @@ if create_model:
     print("Creating new single model")
     model = compiled_single_model(input_shape)
 
-train_and_evaluate(model, args.epochs, args.batches, plot_history=args.plot_history, plot_model=args.plot_model)
+train_and_evaluate(model, args.epochs, args.batches, gpus=args.gpus, plot_history=args.plot_history, plot_model=args.plot_model)
