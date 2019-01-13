@@ -59,9 +59,9 @@ def compiled_single_model(model_input_shape):
     # model = Dense(128, activation='relu')(model)
     # model = Dropout(.25)(model)
     model = Dense(64, activation='relu')(model)
-    model = Dropout(.15)(model)
+    model = Dropout(.5)(model)
     model = Dense(32, activation='relu')(model)
-    model = Dropout(.15)(model)
+    model = Dropout(.5)(model)
 
     model = Dense(num_classes, activation=last_activation)(model)
     model = Model(inputs=input, outputs=model)
