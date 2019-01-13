@@ -12,7 +12,7 @@ def parse_args():
     parser.add_argument('--plot-model', action='store_true', help='Determines if structure of the model should be plotted')
     parser.add_argument('--plot-history', action='store_true', help='Determines if history of loss and accuracy should be plotted')
     args = parser.parse_args()
-    args.gpus = [int(item) for item in args.gpus.split(',')]
+    args.gpus = [item for item in args.gpus.split(',') if item != '']
 
     if args.extlabels:
         args.num_classes = 18

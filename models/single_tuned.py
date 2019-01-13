@@ -73,4 +73,4 @@ if create_model:
     print("Creating new single tuned model")
     model = compiled_single_model(input_shape)
 
-train_and_evaluate(model, args.epochs, args.batches, gpus=gpus, plot_history=args.plot_history, plot_model=args.plot_model)
+train_and_evaluate(model, args.epochs, args.batches, gpus=args.gpus, plot_history=args.plot_history, plot_model=args.plot_model)
