@@ -49,7 +49,7 @@ def compiled_single_model(model_input_shape):
     model = Flatten()(model)
 
     model = Dense(256, activation='relu')(model)
-    model = Dropout(.15)(model)
+    model = Dropout(.5)(model)
 
     model = Dense(128, activation='relu')(model)
     model = Dropout(.25)(model)
