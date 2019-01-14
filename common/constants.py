@@ -23,7 +23,11 @@ SAVE_LEGAL_MOVE_PROBABILITY = 0.1
 SAVE_ILLEGAL_MOVE_PROBABILITY = 0.03
 SAVE_WRONG_MOVE_PROBABILITY = 0.07
 
+<<<<<<< HEAD
 EPOCHS_BATCH = 10 
+=======
+EPOCHS_BATCH = 10
+>>>>>>> more dropout, smaller batches
 
 PIECE_TO_INT = {"p": 0, "n": 1, "b": 2, "r": 3, "q": 4, "k": 5}
 

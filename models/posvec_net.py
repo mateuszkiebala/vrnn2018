@@ -23,6 +23,8 @@ def compiled_single_model(model_input_shape):
 
     model = Flatten()(input)
 
+    model = Dropout(.25)(model)
+
     model = Dense(400, activation='relu')(model)
     model = Dropout(.5)(model)
 
@@ -30,7 +32,7 @@ def compiled_single_model(model_input_shape):
     model = Dropout(.5)(model)
     model = Dense(100, activation='relu')(model)
 
-    model = Dropout(.4)(model)
+    model = Dropout(.5)(model)
 
     model = Dense(num_classes, activation=last_activation)(model)
     model = Model(inputs=input, outputs=model)
