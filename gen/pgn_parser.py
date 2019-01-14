@@ -19,7 +19,7 @@ def board2posvec(board):
     for square in range(0, 63):
         piece = board.piece_at(square)
         piece_type = piece.piece_type
-        piece_color = piece.piece_color
+        piece_color = piece.color
 
         if piece_color == chess.WHITE:
             col_mul = 1
