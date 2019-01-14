@@ -7,7 +7,7 @@ from train import train_and_evaluate
 import tensorflow as tf
 
 # constants
-input_shape = (DEFAULT_IMAGE_SIZE, DEFAULT_IMAGE_SIZE*2, 3)
+input_shape = (DEFAULT_IMAGE_SIZE, DEFAULT_IMAGE_SIZE, 2)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--batches', type=int, default=64, help='Number of batches')

@@ -14,12 +14,18 @@ def board2png(board, name, size=DEFAULT_IMAGE_SIZE, coordinates=False):
     svg2png(svg.data, write_to=name)
 
 # Returns numpy array from given board
-def board2array(board):
+def board2array(board, gray_sclale=False):
     unique_filename = '/tmp/'+str(uuid.uuid4())+'.png'
     board2png(board, unique_filename)
-    image = misc.imread(unique_filename)
+
+    if not gray_sclale:
+        image = misc.imread(unique_filename)
+        os.remove(unique_filename)
+        return image
+
+    image = misc.imread(unique_filename, mode='F')
     os.remove(unique_filename)
-    return image
+    return np.expand_dims(image, axis=2)
 
 def board2vector(board):
     array = np.array(board2array(board))

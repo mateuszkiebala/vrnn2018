@@ -8,7 +8,7 @@ class DataFetcher:
     def __init__(self):
         self.dirs = [dir for dir in os.listdir(GAMES_ARR_PATH) if os.path.isdir(os.path.join(GAMES_ARR_PATH, dir))]
 
-    def fetch_inf(self, type='concat'):
+    def fetch_inf(self, type='stack'):
         while True:
             for dir in self.dirs:
                 dataset = Dataset()
@@ -24,7 +24,7 @@ class Dataset:
     def load(self, number=None, split=True, shuffle=True):
         if number is not None:
             boards_path, results_path = dataset_number_path(number)
-            print("boards path:{}, number {}".format(boards_path, str(number)))
+            print("Loading board. path:{}, number {}".format(boards_path, str(number)))
         else:
             boards_path, results_path = dataset_path()
 
@@ -56,4 +56,15 @@ class Dataset:
             else:
                 (x, y) = self._data
                 return (np.concatenate((x[:,0], x[:,1]), axis=2), y)
+
+        if type == 'stack':
+            if self._splited:
+                (x_train, y_train), (x_test, y_test) = self._data
+                train = (np.squeeze(np.squeeze(np.stack((x_train[:,0], x_train[:,1]), axis=-1))), y_train)
+                test = (np.squeeze(np.squeeze(np.stack((x_test[:,0], x_test[:,1]), axis=-1))), y_test)
+                return train, test
+            else:
+                (x, y) = self._data
+                return (np.squeeze(np.squeeze(np.stack((x[:,0], x[:,1]), axis=-1))), y)
+
         return self._data

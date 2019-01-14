@@ -5,7 +5,7 @@ from common.constants import DEFAULT_IMAGE_SIZE, SINGLE_MODEL_NAME, GAMES_ARR_PA
 from train import parse_args, train_and_evaluate
 
 # constants
-input_shape = (DEFAULT_IMAGE_SIZE, DEFAULT_IMAGE_SIZE*2, 3)
+input_shape = (DEFAULT_IMAGE_SIZE, DEFAULT_IMAGE_SIZE, 2) # stacked gray scale
 
 args = parse_args()
 

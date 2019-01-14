@@ -45,7 +45,7 @@ def train_and_evaluate(model, epochs, batches, gpus=[], dual=False, plot_history
     if dual:
         data_type = 'split'
     else:
-        data_type = 'concat'
+        data_type = 'stack'
 
     for samples in fetcher.fetch_inf(type=data_type):
         if current_epochs >= epochs:
