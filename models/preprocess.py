@@ -67,4 +67,5 @@ class Dataset:
                 (x, y) = self._data
                 return (np.squeeze(np.squeeze(np.stack((x[:,0], x[:,1]), axis=-1))), y)
 
+
         return self._data

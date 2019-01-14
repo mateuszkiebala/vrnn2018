@@ -13,8 +13,27 @@ def board2png(board, name, size=DEFAULT_IMAGE_SIZE, coordinates=False):
     svg = SVG(chess.svg.board(board=board, size=size, coordinates=coordinates))
     svg2png(svg.data, write_to=name)
 
+def board2posvec(board):
+    pieces = []
+
+    for square in range(0, 63):
+        piece = board.piece_at(square)
+        piece_type = piece.piece_type
+        piece_color = piece.piece_color
+
+        if piece_color == chess.WHITE:
+            col_mul = 1
+        else:
+            col_mul = 2
+
+        pieces.append(piece_type * col_mul)
+
+    print("board2posvec res {}".format(pieces))
+    
+    return np.array(pieces)
+
 # Returns numpy array from given board
-def board2array(board, gray_sclale=False):
+def board2array(board, gray_sclale=False, ):
     unique_filename = '/tmp/'+str(uuid.uuid4())+'.png'
     board2png(board, unique_filename)
     if not gray_sclale:

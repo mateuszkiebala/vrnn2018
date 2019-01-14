@@ -14,8 +14,10 @@ SINGLE_MODEL_NAME = "single_model.h5"
 DUAL_MODEL_NAME = "dual_model.h5"
 
 DEFAULT_IMAGE_SIZE = 200 # size (width, height) of an image
+POSVEC_SIZE = 64
 
 MAX_DATASET_SIZE = 2000 # max number of boards saved in single .npy file
+MAX_POSVEC_DATASET_SIZE = 10000
 
 SAVE_LEGAL_MOVE_PROBABILITY = 0.1
 SAVE_ILLEGAL_MOVE_PROBABILITY = 0.03
