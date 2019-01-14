@@ -18,15 +18,19 @@ def board2posvec(board):
 
     for square in range(0, 63):
         piece = board.piece_at(square)
-        piece_type = piece.piece_type
-        piece_color = piece.color
 
-        if piece_color == chess.WHITE:
-            col_mul = 1
+        if piece is None:
+            pieces.append(0)
         else:
-            col_mul = 2
+            piece_type = piece.piece_type
+            piece_color = piece.color
 
-        pieces.append(piece_type * col_mul)
+            if piece_color == chess.WHITE:
+                col_mul = 1
+            else:
+                col_mul = 2
+
+            pieces.append(piece_type * col_mul)
 
     print("board2posvec res {}".format(pieces))
     
