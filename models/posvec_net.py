@@ -21,12 +21,15 @@ else:
 def compiled_single_model(model_input_shape):
     input = Input(shape=model_input_shape)
 
-    model = Dense(256, activation='relu')(input)
+    model = Flatten()(input)
+
+    model = Dense(256, activation='relu')(model)
     model = Dropout(.25)(model)
 
     model = Dense(128, activation='relu')(model)
     model = Dropout(.25)(model)
     model = Dense(64, activation='relu')(model)
+
     model = Dropout(.25)(model)
 
     model = Dense(num_classes, activation=last_activation)(model)
