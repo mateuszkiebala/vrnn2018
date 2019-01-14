@@ -16,7 +16,7 @@ def board2png(board, name, size=DEFAULT_IMAGE_SIZE, coordinates=False):
 def board2posvec(board):
     pieces = []
 
-    for square in range(0, 63):
+    for square in range(0, 64):
         piece = board.piece_at(square)
 
         if piece is None:
