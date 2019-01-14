@@ -30,7 +30,7 @@ def compiled_single_model(model_input_shape):
     model = Dropout(.4)(model)
     model = Dense(100, activation='relu')(model)
 
-    model = Dropout(.25)(model)
+    model = Dropout(.4)(model)
 
     model = Dense(num_classes, activation=last_activation)(model)
     model = Model(inputs=input, outputs=model)
