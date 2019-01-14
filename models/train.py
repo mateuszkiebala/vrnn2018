@@ -1,5 +1,4 @@
-import os, argparse, keras, tensorflow as tf
-from keras import utils
+import os, argparse
 from preprocess import Dataset, DataFetcher
 from common.constants import SINGLE_MODEL_NAME, DUAL_MODEL_NAME, EPOCHS_BATCH
 
@@ -14,6 +13,8 @@ def parse_args():
     args = parser.parse_args()
     args.gpus = [item for item in args.gpus.split(',') if item != '']
 
+    import keras
+
     if args.extlabels:
         args.num_classes = 18
         args.loss = keras.losses.binary_crossentropy
@@ -26,11 +27,13 @@ def parse_args():
     return args
 
 def train_and_evaluate(model, epochs, batches, gpus=[], dual=False, plot_history=False, plot_model=False):
-    if len(gpus) > 0:
-        os.environ["CUDA_VISIBLE_DEVICES"]=gpus.join(',')
+    import keras, tensorflow as tf
+    from keras import utils
 
-        config = tf.ConfigProto()
-        config.gpu_options.allow_growth=True
+    if len(gpus) > 0:
+        os.environ["CUDA_VISIBLE_DEVICES"]=','.join(gpus)
+
+        config = tf.ConfigProto(gpu_options=tf.GPUOptions(allow_growth=True))
         sess = tf.Session(config=config)
         keras.backend.set_session(sess)
         keras.backend.get_session().run(tf.global_variables_initializer())
