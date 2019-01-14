@@ -5,7 +5,7 @@ from common.constants import DEFAULT_IMAGE_SIZE, SINGLE_MODEL_NAME, GAMES_ARR_PA
 from train import parse_args, train_and_evaluate
 
 # constants
-input_shape = (POSVEC_SIZE, 1, 2) # stacked 2 vectors
+input_shape = (POSVEC_SIZE, 2) # stacked 2 vectors
 
 args = parse_args()
 
