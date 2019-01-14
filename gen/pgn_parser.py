@@ -31,8 +31,6 @@ def board2posvec(board):
                 col_mul = 2
 
             pieces.append(piece_type * col_mul)
-
-    print("board2posvec res {}".format(pieces))
     
     return np.array(pieces)
 
