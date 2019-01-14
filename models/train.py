@@ -107,7 +107,7 @@ def train_and_evaluate(model, epochs, batches, gpus=[], dual=False, plot_history
         score = model.evaluate([x_test1, x_test2], y_test, verbose=0)
         model.save(DUAL_MODEL_NAME)
     else:
-        (x_train, y_train), (x_test, y_test) = dataset.data(type='concat')
+        (x_train, y_train), (x_test, y_test) = dataset.data(type='stack')
         score = model.evaluate(x_test, y_test, verbose=0)
         model.save(SINGLE_MODEL_NAME)
 
