@@ -14,7 +14,6 @@ def parse_args():
     args.gpus = [item for item in args.gpus.split(',') if item != '']
 
     import keras
-
     if args.extlabels:
         args.num_classes = 18
         args.loss = keras.losses.binary_crossentropy

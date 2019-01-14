@@ -17,7 +17,6 @@ def board2png(board, name, size=DEFAULT_IMAGE_SIZE, coordinates=False):
 def board2array(board, gray_sclale=False):
     unique_filename = '/tmp/'+str(uuid.uuid4())+'.png'
     board2png(board, unique_filename)
-
     if not gray_sclale:
         image = misc.imread(unique_filename)
         os.remove(unique_filename)
@@ -63,11 +62,11 @@ class PgnReader:
     def _next_pgn(self):
         if len(self.pgns) == 0:
             self.pgns = [pgn for pgn in os.listdir(BOOK_GAMES_PATH)]
-        
+
         self.current_pgn_name = self.pgns[-1]
         self.pgn = open(os.path.join(BOOK_GAMES_PATH, self.pgns.pop()))
 
-    
+
     def next_book_game(self):
         with self.lock:
             while True:
@@ -76,7 +75,7 @@ class PgnReader:
                 except:
                     print("Error reading a game from pgn {}" + self.current_pgn_name)
                     continue
-                
+
                 if game is not None:
                     print("Next book game from {}".format(self.current_pgn_name))
                     return game
