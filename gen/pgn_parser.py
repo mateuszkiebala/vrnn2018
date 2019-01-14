@@ -24,9 +24,9 @@ def board2posvec(board):
 
             color_offset = 0 
             if piece.color == chess.BLACK:
-                col_offset = 6
+                color_offset = 6
 
-            piece_offset = piece.piece_type + col_offset - 1
+            piece_offset = piece.piece_type + color_offset - 1
             pieces[square_offset + piece_offset] = 1
 
     return np.array(pieces)
