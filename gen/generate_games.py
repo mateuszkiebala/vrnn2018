@@ -186,24 +186,31 @@ class Generator:
         if self.save_png:
             board2png(board, GOOD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + ".png")
 
-        if move_number % 10 == 0:
-            print("Game: " + str(self.game_number) + ", Move: " + str(move_number))
-
         if board.is_game_over() or (move_number > args.maxmoves):
             print(end_reason(board, move_number))
             return
 
         legal_moves = [g for g in board.legal_moves]
 
-        self.save_illegal_move(board, legal_moves, move_number)
+
+        if random.random() < SAVE_WRONG_MOVE_PROBABILITY:
+            self.save_wrong_move(board, move_number)
+            print("[Random game {}] Saving wrong move {}".format(self.game_number, move_number))
+
+        # if random.random() < SAVE_ILLEGAL_MOVE_PROBABILITY:
+        #     print("[Random game {}] Saving illegal move {}".format(self.game_number, move_number))
+        #     self.save_illegal_move(board, legal_moves, move_number)
 
         next_move = random.choice(legal_moves)
         next_board = board.copy()
         next_board.push_uci(str(next_move))
 
-        labels = gen_labels(True, board, next_move, extended=self.extended_labels)
-        self.result_boards.append(boards_vector(board, next_board))
-        self.result_vector.append(labels)
+
+        if random.random() < SAVE_LEGAL_MOVE_PROBABILITY:
+            print("[Random game {}] Saving correct move {}".format(self.game_number, move_number))
+            labels = gen_labels(True, board, next_move, extended=self.extended_labels)
+            self.result_boards.append(boards_vector(board, next_board))
+            self.result_vector.append(labels)
 
         self.random_game(next_board, move_number + 1)
 
