@@ -14,24 +14,21 @@ def board2png(board, name, size=DEFAULT_IMAGE_SIZE, coordinates=False):
     svg2png(svg.data, write_to=name)
 
 def board2posvec(board):
-    pieces = []
+    pieces = [0] * 768 # (6 white pieces + 6 black) * 64 squares 
 
     for square in range(0, 64):
         piece = board.piece_at(square)
 
-        if piece is None:
-            pieces.append(0)
-        else:
-            piece_type = piece.piece_type
-            piece_color = piece.color
+        if piece is not None:
+            square_offset = 12 * square
 
-            if piece_color == chess.WHITE:
-                col_mul = 1
-            else:
-                col_mul = 2
+            color_offset = 0 
+            if piece.color == chess.BLACK:
+                col_offset = 6
 
-            pieces.append(piece_type * col_mul)
-    
+            piece_offset = piece.piece_type + col_offset - 1
+            pieces[square_offset + piece_offset] = 1
+
     return np.array(pieces)
 
 # Returns numpy array from given board
