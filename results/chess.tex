@@ -25,7 +25,7 @@
 \begin{document}
 
 %%%%%%%%% TITLE
-\title{\LaTeX\ Author Guidelines for CVPR Proceedings}
+\title{VRNN 2018 - Predicting legal chess moves}
 
 \author{Mateusz Kiebala\\
 University of Warsaw\\
@@ -130,7 +130,9 @@ In our last method we tried to see what accuracy can we achieve if we pass
 encoding of the chess board to fully connected layer without need of extracting
 features by convolution layers. This experiment was to see what is the bottleneck:
 too shallow representation of features extracted by convolution layers or fully
-connected layers.
+connected layers. A term deterministic encoding means a chess board, encoded as
+\{0,1\} vector of length 768 (there are 12 different pieces which each of 
+64 positions can by occupied by).
 
 \section{Experiments}
 
@@ -140,9 +142,29 @@ models. In both types of models as well as deterministic encoding we achieved
 
 Interestingly, the deterministic encoding had similar accuracy as the other models
 what suggest that convolution layers did a great job when extracting features
-and the bottleneck in the accuracy were fully connected layers. With this information
-we tried to implemented different set of fully connected layers but without
-success.
+and the bottleneck in the accuracy were fully connected layers. Worth noting is the fact, 
+that thanks to the compact encoding representation, we were able to train a network on a 
+much bigger dataset of roughly 200,000 moves.
+However we observed that it did not have signiticant impact on results, as final
+accuracy reached 87%.
+With this information we tried to implemented different set of fully 
+connected layers but without further success. 
+
+\subsection{Results by method}
+
+
+\begin{center}
+    \begin{tabular}{ | p{5em} | p{5em} | p{5em} | p{5em} |}
+    \hline
+    Method & Dataset size & No. epochs & Accuracy \\ [0.5ex] 
+    \hline \hline
+    Single & 15,000 & 10k & 50\% \\ 
+    \hline
+    Siamese & 9C & 19C & 50\% \\ \hline
+    Single gray scale & 10C & 21C & 87\% \\
+    \hline
+    \end{tabular}
+\end{center}
 
 \section{Conclusions}
 
