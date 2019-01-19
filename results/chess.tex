@@ -21,11 +21,12 @@
 
 % Pages are numbered in submission mode, and unnumbered in camera-ready
 % \ifcvprfinal\pagestyle{empty}\fi
-\setcounter{page}{4321}
+\setcounter{page}{1}
 \begin{document}
 
 %%%%%%%%% TITLE
-\title{VRNN 2018 - Predicting legal chess moves}
+\title{VRNN 2018 - Predicting legal chess moves \\ \large {\small "Chess is the struggle against the error."} }
+
 
 \author{Mateusz Kiebala\\
 University of Warsaw\\
@@ -148,9 +149,11 @@ much bigger dataset of roughly 200,000 moves.
 However we observed that it did not have signiticant impact on results, as final
 accuracy reached 87%.
 With this information we tried to implemented different set of fully 
-connected layers but without further success. 
+connected layers but without further success. We decided to not go further with this 
+part of a project, as this is out of the course's scope.
 
 \subsection{Results by method}
+
 
 
 \begin{center}
@@ -163,12 +166,37 @@ connected layers but without further success.
     Siamese & 9C & 19C & 50\% \\ \hline
     Single gray scale & 10C & 21C & 87\% \\
     \hline
+    Deterministic encoding & 200,000 & 10,000 & 87\% \\
+    \hline
     \end{tabular}
 \end{center}
 
 \section{Conclusions}
 
-??
+At the very beginning of the project, its goal was to solve a problem of
+pattern recognition and logical reasoning based on rules of chess.
+We did not acomplished any significant results taking into consideration 
+solely the given task. However, our experiments turned out to be successful in
+terms of image recognition problem. 
+
+
+Our project contributed to show that logical reasoning is a hard problem even
+if limited to very specific usecase. It shows that well designed 
+convolutional neutral network successfully extracts desired features from images, 
+even when a loss function desribes abstract concept, like legality of chess move, 
+rather than simple idea like a class of an object on an image. The image recognition
+overhead is relatively small (~2 percentage points), compared to perfect representation
+of deterministic encoding.
+
+
+There are plenty of opportunities for further work. They include, but are not limited to:
+\begin{itemize} 
+\item testing proposed solutions on better hardware and much larger datasets,
+as we provide a convienient way to generate almost unlimited dataset
+\item evaluating our CNN solution with better designed neutral
+network for logical reasoning part
+
+\end{itemize}
 
 \begin{quote}
 \begin{center}
