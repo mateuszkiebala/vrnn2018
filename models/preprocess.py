@@ -63,7 +63,6 @@ class Dataset:
                 train = (np.squeeze(np.squeeze(np.stack((x_train[:,0], x_train[:,1]), axis=-1))), y_train)
                 test = (np.squeeze(np.squeeze(np.stack((x_test[:,0], x_test[:,1]), axis=-1))), y_test)
 
-                print("train shape {} {}, test shape {} {}".format(train[0].shape, train[1].shape, test[0].shape, test[1].shape))
                 return train, test
             else:
                 (x, y) = self._data
