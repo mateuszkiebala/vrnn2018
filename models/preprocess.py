@@ -62,9 +62,11 @@ class Dataset:
                 (x_train, y_train), (x_test, y_test) = self._data
                 train = (np.squeeze(np.squeeze(np.stack((x_train[:,0], x_train[:,1]), axis=-1))), y_train)
                 test = (np.squeeze(np.squeeze(np.stack((x_test[:,0], x_test[:,1]), axis=-1))), y_test)
+
                 return train, test
             else:
                 (x, y) = self._data
                 return (np.squeeze(np.squeeze(np.stack((x[:,0], x[:,1]), axis=-1))), y)
+
 
         return self._data

@@ -1,7 +1,7 @@
 import numpy as np
 import multiprocessing as mp
 import os, chess, random, copy, time, argparse
-from pgn_parser import board2png, board2array, PgnReader
+from pgn_parser import board2png, board2array, board2posvec, PgnReader
 from common.constants import *
 
 parser = argparse.ArgumentParser()
@@ -11,6 +11,7 @@ parser.add_argument('--bookgames', type=int, default=25, help='Number of book ga
 parser.add_argument('--extlabels', action='store_true', help='Determines if generator should generate extended labels')
 parser.add_argument('--pngs', action='store_true', help='Determines if boards pngs should be generated')
 parser.add_argument('--grayscale', action='store_true', help='Determines if grayscale should be used')
+parser.add_argument('--posvec', action='store_true', help='Generate compact position vector instread of images')
 args = parser.parse_args()
 
 pgn_reader = PgnReader()
@@ -42,7 +43,10 @@ def gen_labels(valid, board, next_move, extended=False):
     labels.extend(symbol_vec) # which symbol
     return labels
 
-def boards_vector(prev_board, next_board, gray_scale=False):
+def boards_vector(prev_board, next_board, gray_scale=False, posvec=False):
+    if posvec:
+        return np.array([board2posvec(prev_board), board2posvec(next_board)])
+
     return np.array([board2array(prev_board, gray_scale), board2array(next_board, gray_scale)])
 
 def end_reason(board, move_number):
@@ -70,11 +74,12 @@ def gen_non_legal_move(board, legal_moves):
     return None
 
 class Generator:
-    def __init__(self, game_number, extended_labels=False, save_png=False, gray_scale=False):
+    def __init__(self, game_number, extended_labels=False, save_png=False, gray_scale=False, posvec=False):
         self.game_number = game_number
         self.extended_labels = extended_labels
         self.save_png = save_png
         self.gray_scale = gray_scale
+        self.posvec = posvec
         self.result_boards = []
         self.result_vector = []
 
@@ -109,7 +114,7 @@ class Generator:
             non_legal_board.push(non_legal_move)
 
             labels = gen_labels(False, board, non_legal_move, extended=self.extended_labels)
-            self.result_boards.append(boards_vector(board, non_legal_board, gray_scale=self.gray_scale))
+            self.result_boards.append(boards_vector(board, non_legal_board, gray_scale=self.gray_scale, posvec=self.posvec))
             self.result_vector.append(labels)
 
             if self.save_png:
@@ -123,7 +128,7 @@ class Generator:
         wrong_board.push(move)
 
         labels = gen_labels(False, board, move, extended=self.extended_labels)
-        self.result_boards.append(boards_vector(board, wrong_board, gray_scale=self.gray_scale))
+        self.result_boards.append(boards_vector(board, wrong_board, gray_scale=self.gray_scale, posvec=self.posvec))
         self.result_vector.append(labels)
 
         if self.save_png:
@@ -169,7 +174,7 @@ class Generator:
             if random.random() < SAVE_LEGAL_MOVE_PROBABILITY:
                 print("[Game {}] Saving correct move {}".format(self.game_number, move_number))
                 labels = gen_labels(False, board, move, extended=self.extended_labels)
-                self.result_boards.append(boards_vector(board, next_board, gray_scale=self.gray_scale))
+                self.result_boards.append(boards_vector(board, next_board, gray_scale=self.gray_scale, posvec=self.posvec))
                 self.result_vector.append(labels)
                 if self.save_png:
                     board2png(board, GOOD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + ".png")
@@ -210,7 +215,7 @@ class Generator:
         if random.random() < SAVE_LEGAL_MOVE_PROBABILITY:
             print("[Random game {}] Saving correct move {}".format(self.game_number, move_number))
             labels = gen_labels(True, board, next_move, extended=self.extended_labels)
-            self.result_boards.append(boards_vector(board, next_board, gray_scale=self.gray_scale))
+            self.result_boards.append(boards_vector(board, next_board, gray_scale=self.gray_scale, posvec=self.posvec))
             self.result_vector.append(labels)
 
 
@@ -220,12 +225,12 @@ class Generator:
         return self.result_boards, self.result_vector
 
 def generate_random_game(i):
-    generator = Generator(i, extended_labels=args.extlabels, save_png=args.pngs, gray_scale=args.grayscale)
+    generator = Generator(i, extended_labels=args.extlabels, save_png=args.pngs, gray_scale=args.grayscale, posvec=args.posvec)
     generator.random_game()
     return generator.results()
 
 def generate_book_game(i):
-    generator = Generator(i, extended_labels=args.extlabels, save_png=args.pngs, gray_scale=args.grayscale)
+    generator = Generator(i, extended_labels=args.extlabels, save_png=args.pngs, gray_scale=args.grayscale, posvec=args.posvec)
     generator.book_game()
     return generator.results()
 
@@ -262,7 +267,10 @@ if os.path.exists(GAMES_ARR_PATH):
     if len(dirs) != 0:
         current_dataset_number = max(dirs) + 1
 
-print("next dataset number {}".format(current_dataset_number))
+max_dataset_size = MAX_DATASET_SIZE
+
+if args.posvec:
+    max_dataset_size = MAX_POSVEC_DATASET_SIZE
 
 while True:
     random_games_upper_bound = min(args.randomgames+1, random_game_number + mp.cpu_count()) # either next batch of games or smaller if games run out
@@ -281,7 +289,7 @@ while True:
 
     book_game_number += mp.cpu_count()
 
-    if len(all_boards) > MAX_DATASET_SIZE:
+    if len(all_boards) > max_dataset_size:
         save_dataset(all_boards, all_results, current_dataset_number)
         all_boards = []
         all_results = []
