@@ -71,14 +71,19 @@ predict win percentages for given positions.
 We believe that this problem is super important. If model can learn the rules of
 the chess, maybe it also can learn the rules of the world. Long standing
 question about single formula describing the world could be solved by CNN. It is
-still long way ahead of us but we believe we can make it and this was first step
-towards this.
+still long way ahead of us but we believe we can make it and our work is first
+step towards this achievement.
 
 \section{Related work}
 
 We have struggled to find any papers or work done in this area. All the papers
-were targeting learning model to evaluate positions but not how actually to play
-the game. LINK THE PAPER WHICH WE FOUND
+are targeting learning model to evaluate positions but not how to play
+the game. In end-to-end chess playing paper~\cite{DeepChess} authors discuss learning
+model to not only evaluate positions but also determining if the move is correct.
+We have used key insights from the paper to improve our models architectures.
+Another paper about predicting moves~\cite{Oshri2015PredictingMI} provided a lot
+of useful information about using and not using different types of layers in our
+models.
 
 \section{Data}
 
@@ -93,7 +98,7 @@ data was generated from random plays as well as positions and moves from book
 games. We have combined these two sources into datasets on which our models were
 tested. This way we wanted our model to prevent overfitting on specific types of
 plays. Illegal moves were created randomly but putting pieces in empty spaces on
-the chess board. The ratio of legal and Illegal moves was around 50-50.
+the chess board. The ratio of legal and illegal moves was around 50-50.
 
 To train the models we have generated around 15 datasets with different random
 -- book games ratio each of them containing about 5000 moves. In total we gained
@@ -138,6 +143,10 @@ what suggest that convolution layers did a great job when extracting features
 and the bottleneck in the accuracy were fully connected layers. With this information
 we tried to implemented different set of fully connected layers but without
 success.
+
+\section{Conclusions}
+
+??
 
 \begin{quote}
 \begin{center}
