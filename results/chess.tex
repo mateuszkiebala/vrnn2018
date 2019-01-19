@@ -27,7 +27,7 @@
 %%%%%%%%% TITLE
 \title{\LaTeX\ Author Guidelines for CVPR Proceedings}
 
-\author{Mateusz Kiebała\\
+\author{Mateusz Kiebala\\
 University of Warsaw\\
 {\tt\small mk359758@students.mimuw.edu.pl}
 % For a paper whose authors are all at the same institution, omit the following
@@ -49,15 +49,15 @@ University of Warsaw\\
 %%%%%%%%% ABSTRACT
 \begin{abstract}
    One of the recent problems that gained a lot of attention in Deep Learning
-   field was playing Go and Chess at the top level. The models for these
+   field was playing Go and Chess at the professional level. The models for these
    problems were assigning the probability of the win for certain moves and
-   positions but the moves were generated deterministcally. In our work we are
+   positions where the moves were generated deterministically. In our work we are
    checking if it is possible to learn a CNN network the rules of chess
    providing only image of the board before and after the move. We test two
    different models architectures: single CNN model which processes two input
    images as one concatenated; and Siamese CNN model which takes two images
-   separetly, extracts features combines them together predicting the result.
-   These two approaches achieve 90\% on tranning set and 85\% on validation set.
+   separately, extracts features combines them together predicting the result.
+   These two approaches achieve 90\% on training set and 85\% on validation set.
 \end{abstract}
 
 %%%%%%%%% BODY TEXT
@@ -66,7 +66,7 @@ University of Warsaw\\
 Recent achievements in Deep Learning allowed researchers to beat top players in
 Go and Chess using Deep Learning models. To learn model they have used
 techniques like Reinforcement Learning and Deep Convolutional Neural Networks to
-predict win precentages for given positions.
+predict win percentages for given positions.
 
 We believe that this problem is super important. If model can learn the rules of
 the chess, maybe it also can learn the rules of the world. Long standing
@@ -102,6 +102,42 @@ about 70000 moves to train on.
 \section{Methods}
 
 In our approach, we tried two different type of CNN models.
+
+\subsection{Single CNN model}
+
+One of the first models we train is CNN model which consists of couple convolution
+layers followed by the fully connected layers. The model, as an input, was feeded
+with concatenated images: before and after move. In this model we wanted to check
+if convolution layers can extract more features having more information.
+
+\subsection{Siamese CNN model}
+
+Siamese CNN model consisted of two identical CNN networks which output was then
+concatenated and passed to the fully connected layers. This model was feeded
+with two inputs: image before and after move. Our understanding was that the
+model should independently extract features of each of the image and in the
+output have some kind of encoding which then was feeded to fully connected
+layers.
+
+\subsection{Deterministic encoding}
+
+In our last method we tried to see what accuracy can we achieve if we pass
+encoding of the chess board to fully connected layer without need of extracting
+features by convolution layers. This experiment was to see what is the bottleneck:
+too shallow representation of features extracted by convolution layers or fully
+connected layers.
+
+\section{Experiments}
+
+In the experiments we have tried different approaches for different types of
+models. In both types of models as well as deterministic encoding we achieved
+~85\% on validation set.
+
+Interestingly, the deterministic encoding had similar accuracy as the other models
+what suggest that convolution layers did a great job when extracting features
+and the bottleneck in the accuracy were fully connected layers. With this information
+we tried to implemented different set of fully connected layers but without
+success.
 
 \begin{quote}
 \begin{center}
