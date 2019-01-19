@@ -14,7 +14,7 @@ def board2png(board, name, size=DEFAULT_IMAGE_SIZE, coordinates=False):
     svg2png(svg.data, write_to=name)
 
 def board2posvec(board):
-    pieces = [0] * 768 # (6 white pieces + 6 black) * 64 squares 
+    pieces = [0] * 768 # (6 white pieces + 6 black) * 64 squares
 
     for square in range(0, 64):
         piece = board.piece_at(square)
@@ -22,7 +22,7 @@ def board2posvec(board):
         if piece is not None:
             square_offset = 12 * square
 
-            color_offset = 0 
+            color_offset = 0
             if piece.color == chess.BLACK:
                 color_offset = 6
 
@@ -32,10 +32,10 @@ def board2posvec(board):
     return np.array(pieces)
 
 # Returns numpy array from given board
-def board2array(board, gray_sclale=False, ):
+def board2array(board, gray_scale=False):
     unique_filename = '/tmp/'+str(uuid.uuid4())+'.png'
     board2png(board, unique_filename)
-    if not gray_sclale:
+    if not gray_scale:
         image = misc.imread(unique_filename)
         os.remove(unique_filename)
         return image
