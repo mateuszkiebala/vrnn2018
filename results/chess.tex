@@ -72,15 +72,15 @@ Convolutional Neural Networks to predict win percentages for given positions.
 Those models relay on deterministic move generation and known encoding of
 position.
 
-In our work we wanted to change the perspective of playing Chess. We wanted our
-model to learn Chess rules without prior definition of what they are and what is
+In our work we wanted to change the perspective of playing chess. We wanted our
+model to learn chess rules without prior definition of what they are and what is
 the purpose of the game. This is exactly what people, who did not see games like
 Chess or Go before, do when they see two other players playing those games --
 they try to understand the possibilities, rules and purpose of the game just by
 looking at how the players move.
 
 We believe that this problem is super important. If model can learn the rules of
-Chess, maybe it also can learn the rules of the world. Long standing question
+chess, maybe it also can learn the rules of the world. Long standing question
 about single formula describing the world could be solved by CNN. It is still
 long way ahead of us but we believe we can make it and our work is first step
 towards this achievement.
@@ -92,7 +92,7 @@ we have found, are targeting learning model to evaluate positions but not how to
 play the game. In end-to-end chess playing paper~\cite{DeepChess} authors
 discuss a model to not only evaluate positions but also determining if the move
 is correct. We have used the key insights from the paper to improve our models
-architectures. Another paper about predicting Chess
+architectures. Another paper about predicting chess
 moves~\cite{Oshri2015PredictingMI} provided us a lot of useful information about
 using and not using different types of layers in our models.
 
@@ -102,21 +102,21 @@ Chess is deterministic game and the moves as well as positions can be easily
 generated and encoded.
 
 Data used in our experiments was generated using python chess
-library\footnote{\url{https://github.com/niklasf/python-chess}} which allowed to save
-given position as images which then we converted into numpy
-arrays\footnote{\url{http://www.numpy.org}}. We have created framework for generating
-random data with different outputs which were necessary for different types of
-models we have tested. The data was generated from random plays as well as
-positions and moves from book
-games\footnote{\url{https://www.ficsgames.org/download.html}}. We have combined these
-two sources into datasets on which our models were trained and tested. This way
-we wanted prevent our model from overfitting on specific types of plays. Illegal
-moves were created randomly but putting pieces in empty spaces on currently
-processed chess board. The ratio of legal and illegal moves was around
+library\footnote{\url{https://github.com/niklasf/python-chess}} which allowed to
+save given position as images which then we converted into numpy
+arrays\footnote{\url{http://www.numpy.org}}. We have created framework for
+generating random data with different outputs which were necessary for different
+types of models we have tested. The data was generated from random plays as well
+as positions and moves from book
+games\footnote{\url{https://www.ficsgames.org/download.html}}. We have combined
+these two sources into datasets on which our models were trained and tested.
+This way we wanted prevent our model from overfitting on specific types of
+plays. Illegal moves were created randomly but putting pieces in empty spaces on
+currently processed chess board. The ratio of legal and illegal moves was around
 $50$--$50$.
 
 To train the models we have generated around $15$ datasets with different random
--- book games ratio each of them containing about $5'000$ moves. In total we
+vs book games ratio each of them containing about $5'000$ moves. In total we
 gained about $70'000$ moves to train on.
 
 \section{Methods}
@@ -151,17 +151,17 @@ encoding of the chess board to fully connected layer without need of extracting
 features by convolution layers. This experiment was to see what is the
 bottleneck: too shallow representation of features extracted by convolution
 layers or fully connected layers. A term deterministic encoding means a chess
-board, encoded as $\{0,1\}$ vector of length $768$ (there are $12$ different
+board, encoded as $\{0,1\}$ vector of length $768$ -- there are $12$ different
 pieces (number of colors * number of pieces) each of them can occupy one of $64$
-positions).
+positions.
 
 \subsection{Color vs gray scale}
 
-In the beginning, we used colorful images ($3$ channels). We then concluded that
-the networks could have been learning specific features depending on color. We
-then started generating images in gray scale ($1$ channel). Unfortunately, we
-did not observe any improvement and thus came to conclusion that our convolution
-layers must have been generalizing quite well.
+In the beginning, we used colorful images ($3$ channels). We suspected that the
+networks could have been learning specific features depending on color. Thus, we
+started generating images in gray scale ($1$ channel). Unfortunately, we did not
+observe any improvement and thus came to conclusion that our convolution layers
+must have been generalizing quite well.
 
 \section{Experiments}
 
@@ -169,7 +169,7 @@ In the experiments we have tried different approaches for different types of
 models. In both types of models as well as deterministic encoding we achieved
 $\thicksim 86\%$ on validation set.
 
-Interestingly, the deterministic encoding had similar accuracy as the other
+What may be interesting is that the deterministic encoding had similar accuracy as the other
 models what suggest that convolution layers did a great job in extracting
 features and the bottleneck in the accuracy was caused by fully connected
 layers. Worth noting is the fact, that thanks to the compact encoding
@@ -198,14 +198,14 @@ project, as this is out of the course's scope.
 
 \section{Conclusions}
 
-At the very beginning of the project, its goal was to solve a problem of pattern
-recognition and logical reasoning based on rules of Chess. We did not accomplish
+At the very beginning of the project, our goal was to solve a problem of pattern
+recognition and logical reasoning based on rules of chess. We did not accomplish
 any significant results taking into consideration solely the given task.
 However, our experiments turned out to be successful in terms of image
 recognition problem.
 
 Our project contributed to show that logical reasoning is a hard problem even if
-it is limited to very specific use case. It shows that well crafted convolution
+it is limited to specific use case. It shows that well crafted convolution
 neutral network successfully extracts desired features from images, even when a
 loss function describes abstract concept, like legality of chess move, rather
 than simple idea like a class of an object on an image. The image recognition
