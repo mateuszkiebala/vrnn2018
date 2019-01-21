@@ -12,8 +12,7 @@ args = parse_args()
 
 def half_model():
     input = Input(shape=input_shape)
-    model = ZeroPadding2D((3, 3))(input)
-    model = Conv2D(64, (3, 3), activation='relu')(model)
+    model = Conv2D(64, (3, 3), activation='relu')(input)
     model = BatchNormalization(axis=3)(model)
     model = Activation('relu')(model)
     model = MaxPooling2D((3, 3))(model)

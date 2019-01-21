@@ -52,8 +52,8 @@ University of Warsaw\\
    One of the recent problems that gained a lot of attention in Deep Learning
    field was playing Go and Chess at the professional level. The models for
    those problems are assigning the probability of the win for certain moves and
-   positions where the moves are generated deterministically. In our work, we are
-   checking if it is possible to learn a CNN network the rules of chess
+   positions where the moves are generated deterministically. In our work, we
+   are checking if it is possible to learn a CNN network the rules of chess
    providing the only image of the board before and after the move. We test two
    different models architectures: single CNN model which processes two input
    images as one concatenated; and Siamese CNN model which takes two images
@@ -79,11 +79,11 @@ Chess or Go before, do when they see two other players playing those games --
 they try to understand the possibilities, rules and purpose of the game just by
 looking at how the players move.
 
-We believe that this problem is super important. If the model can learn the rules of
-chess, maybe it also can learn the rules of the world. Long-standing question
-about single formula describing the world could be solved by CNN. It is still
-long way ahead of us but we believe we can make it and our work is the first step
-towards this achievement.
+We believe that this problem is super important. If the model can learn the
+rules of chess, maybe it also can learn the rules of the world. Long-standing
+question about single formula describing the world could be solved by CNN. It is
+still long way ahead of us but we believe we can make it and our work is the
+first step towards this achievement.
 
 \section{Related work}
 
@@ -93,8 +93,8 @@ play the game. In end-to-end chess playing paper~\cite{DeepChess} authors
 discuss a model to not only evaluate positions but also determining if the move
 is correct. We have used the key insights from the paper to improve our models'
 architectures. Another paper about predicting chess
-moves~\cite{Oshri2015PredictingMI} provided us with a lot of useful information about
-using and not using different types of layers in our models.
+moves~\cite{Oshri2015PredictingMI} provided us with a lot of useful information
+about using and not using different types of layers in our models.
 
 \section{Data}
 
@@ -112,10 +112,10 @@ games\footnote{\url{https://www.ficsgames.org/download.html}}. We have combined
 these two sources into datasets on which our models were trained and tested.
 This way we wanted to prevent our model from overfitting on specific types of
 plays. Wrong moves were created randomly by putting pieces on random squares on
-currently processed chess board, and ensuring that such a move is not legal. 
-The ratio of legal and illegal moves was around $50$--$50$. What's worth noting
-is the fact that introducing additional illegal moves, which fallacy was due to
-checks or checkmates, had minor influence overall accuracy. 
+currently processed chess board, and ensuring that such a move is not legal. The
+ratio of legal and illegal moves was around $50$--$50$. What's worth noting is
+the fact that introducing additional illegal moves, which fallacy was due to
+checks or checkmates, had minor influence overall accuracy.
 
 To train the models we have generated around $15$ datasets with different random
 vs book games ratio each of them containing about $5'000$ moves. In total, we
@@ -132,8 +132,8 @@ convolution layers followed by the fully connected layers\footnote{Single model
 architecture:
 \url{http://students.mimuw.edu.pl/~jm360338/vrnn2018/model_single.png}}. The
 model, as an input, was fed with concatenated images: before and after a move.
-In this model, we wanted to check if convolution layers can extract more features
-having more information.
+In this model, we wanted to check if convolution layers can extract more
+features having more information.
 
 \subsection{Siamese CNN model}
 
@@ -149,9 +149,9 @@ connected layers.
 \subsection{Deterministic encoding}
 
 In our last method we tried to see what accuracy can we achieve if we pass
-encoding of the chess board to fully connected layer without the need of extracting
-features by convolution layers. This experiment was to see what is the
-bottleneck: too shallow representation of features extracted by convolution
+encoding of the chess board to fully connected layer without the need of
+extracting features by convolution layers. This experiment was to see what is
+the bottleneck: too shallow representation of features extracted by convolution
 layers or fully connected layers. A term deterministic encoding means a chess
 board, encoded as $\{0,1\}$ vector of length $768$ -- there are $12$ different
 pieces (number of colors * number of pieces) each of them can occupy one of $64$
@@ -162,8 +162,8 @@ positions.
 In the beginning, we used colorful images ($3$ channels). We suspected that the
 networks could have been learning specific features depending on color. Thus, we
 started generating images in grayscale ($1$ channel). Unfortunately, we did not
-observe any improvement and thus came to the conclusion that our convolution layers
-must have been generalizing quite well.
+observe any improvement and thus came to the conclusion that our convolution
+layers must have been generalizing quite well.
 
 \section{Experiments}
 
@@ -171,16 +171,24 @@ In the experiments, we have tried different approaches for different types of
 models. In both types of models as well as deterministic encoding we achieved
 $\thicksim 86\%$ on a validation set.
 
-What may be interesting is that the deterministic encoding had similar accuracy as the other
-models what suggest that convolution layers did a great job in extracting
-features and the bottleneck in the accuracy was caused by fully connected
-layers. Worth noting is the fact, that thanks to the compact encoding
+What may be interesting is that the deterministic encoding had similar accuracy
+as the other models what suggest that convolution layers did a great job in
+extracting features and the bottleneck in the accuracy was caused by fully
+connected layers. Worth noting is the fact, that thanks to the compact encoding
 representation, we were able to train a network on a much bigger dataset of
 roughly $200'000$ moves. However, we observed that it did not have a significant
 impact on results, as final accuracy reached $\thicksim 87\%$. With this
 information, we tried to implement a different set of fully connected layers but
 without further success. We decided to not go further with this part of a
 project, as this is out of the course's scope.
+
+\subsection{Hardware}
+
+We trained our models on single 1080Ti GPU. Each of the models was trained on
+$\thicksim 5000$ epochs with $64$ batch size. Single dataset was trained for
+$10$ epochs then new dataset was loaded and then we trained it again for $10$
+epochs and so on. As we aformentioned it before, we have generated $15$ datasets
+so each of them was trained around $30$ times.
 
 \subsection{Method comparison}
 
@@ -207,10 +215,10 @@ recognition problem.
 Our project contributed to show that logical reasoning is a hard problem even if
 it is limited to a specific use case. It shows that well-crafted convolution
 neutral network successfully extracts desired features from images, even when a
-loss function describes an abstract concept, like the legality of chess move, rather
-than a simple idea like a class of an object on an image. The image recognition
-overhead is relatively small ($\thicksim 1 \text{-} 2$ percentage points),
-compared to the perfect representation of deterministic encoding.
+loss function describes an abstract concept, like the legality of chess move,
+rather than a simple idea like a class of an object on an image. The image
+recognition overhead is relatively small ($\thicksim 1 \text{-} 2$ percentage
+points), compared to the perfect representation of deterministic encoding.
 
 There are plenty of opportunities for further work. They include, but are not
 limited to:

@@ -38,7 +38,10 @@ def train_and_evaluate(model, epochs, batches, gpus=[], dual=False, plot_history
         keras.backend.get_session().run(tf.global_variables_initializer())
 
     if plot_model:
-        utils.plot_model(model, to_file='model.png')
+        if dual:
+            utils.plot_model(model, to_file='dual_model.png', show_shapes=True)
+        else:
+            utils.plot_model(model, to_file='single_model.png', show_shapes=True)
 
     fetcher = DataFetcher()
     current_epochs = 0

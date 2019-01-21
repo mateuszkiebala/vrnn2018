@@ -13,8 +13,7 @@ args = parse_args()
 
 def half_model():
     input = Input(shape=input_shape)
-    model = ZeroPadding2D((3, 3))(input)
-    model = Conv2D(64, (3, 3))(model)
+    model = Conv2D(64, (3, 3))(input)
     model = BatchNormalization()(model)
     model = Activation('relu')(model)
     model = Conv2D(128, (3, 3), strides=(2, 2))(model)

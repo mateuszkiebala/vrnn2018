@@ -28,9 +28,8 @@ else:
 
 def compiled_single_model(model_input_shape):
     input = Input(shape=model_input_shape)
-    model = ZeroPadding2D((1, 1))(input)
 
-    model = Conv2D(32, (3, 3), activation='relu')(model)
+    model = Conv2D(32, (3, 3), activation='relu')(input)
     model = BatchNormalization(axis=3)(model)
     model = Activation('relu')(model)
     model = MaxPooling2D((3, 3))(model)
