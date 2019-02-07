@@ -186,9 +186,11 @@ project, as this is out of the course's scope.
 
 We trained our models on single 1080Ti GPU. Each of the models was trained on
 $\thicksim 5000$ epochs with $64$ batch size. Single dataset was trained for
-$10$ epochs then new dataset was loaded and then we trained it again for $10$
-epochs and so on. As we aformentioned it before, we have generated $15$ datasets
-so each of them was trained around $30$ times.
+$10$ epochs, after that new dataset was loaded and it was trained for $10$
+epochs as well, then whole process repeated. As we aformentioned it before, we
+have generated $15$ different datasets -- each of them contained new images and
+some of them had different random/book games ratio. Therefore, each of the
+datasets was trained around $30$ times.
 
 \subsection{Method comparison}
 
