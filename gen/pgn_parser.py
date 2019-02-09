@@ -4,7 +4,7 @@ from chess import svg, pgn
 from cairosvg import svg2png
 from scipy import misc
 from IPython.display import SVG
-from common.constants import DEFAULT_IMAGE_SIZE, BOOK_GAMES_PATH, BOOK_GAMES_PATH
+from common.constants import DEFAULT_IMAGE_SIZE, BOOK_GAMES_PATH
 
 # Saves board to png with provided name and size
 def board2png(board, name, size=DEFAULT_IMAGE_SIZE, coordinates=False):
@@ -71,17 +71,14 @@ def parse_pgn(input_path, output_path):
 class PgnReader:
     def __init__(self):
         self.lock = threading.Lock()
+        self.cur_pgn_idx = 0
         self.pgns = [pgn for pgn in os.listdir(BOOK_GAMES_PATH)]
-        self.current_pgn_name = self.pgns[-1]
-        self.pgn = open(os.path.join(BOOK_GAMES_PATH, self.pgns.pop()))
+        self.pgn = open(os.path.join(BOOK_GAMES_PATH, self.pgns[self.cur_pgn_idx]))
 
     def _next_pgn(self):
-        if len(self.pgns) == 0:
-            self.pgns = [pgn for pgn in os.listdir(BOOK_GAMES_PATH)]
-
-        self.current_pgn_name = self.pgns[-1]
-        self.pgn = open(os.path.join(BOOK_GAMES_PATH, self.pgns.pop()))
-
+        self.cur_pgn_idx += 1
+        self.cur_pgn_idx %= len(self.pgns)
+        self.pgn = open(os.path.join(BOOK_GAMES_PATH, self.pgns[self.cur_pgn_idx]))
 
     def next_book_game(self):
         with self.lock:
@@ -89,14 +86,14 @@ class PgnReader:
                 try:
                     game = chess.pgn.read_game(self.pgn)
                 except:
-                    print("Error reading a game from pgn {}" + self.current_pgn_name)
+                    print("Error reading a game from pgn {}" + self.pgns[self.cur_pgn_idx])
                     continue
 
                 if game is not None:
-                    print("Next book game from {}".format(self.current_pgn_name))
+                    print("Next book game from {}".format(self.pgns[self.cur_pgn_idx]))
                     return game
-
-                self._next_pgn()
+                else:
+                    self._next_pgn()
 
 if __name__ == '__main__':
     parse_pgn("../games/games.pgn", 'parsed_game/')
