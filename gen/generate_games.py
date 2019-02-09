@@ -106,21 +106,6 @@ class Generator:
             if not os.path.exists(BAD_GAMES_IMG_PATH + str(self.game_number)):
                 os.makedirs(BAD_GAMES_IMG_PATH + str(self.game_number))
 
-    def save_illegal_move(self, board, legal_moves, move_number):
-        non_legal_move = gen_non_legal_move(board, set(legal_moves))
-
-        if non_legal_move != None:
-            non_legal_board = board.copy()
-            non_legal_board.push(non_legal_move)
-
-            labels = gen_labels(False, board, non_legal_move, extended=self.extended_labels)
-            self.result_boards.append(boards_vector(board, non_legal_board, gray_scale=self.gray_scale, posvec=self.posvec))
-            self.result_vector.append(labels)
-
-            if self.save_png:
-                board2png(board, BAD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + ".png")
-                board2png(non_legal_board, BAD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + "-illegal.png")
-
     def save_wrong_move(self, board, move_number):
         move = self.gen_wrong_move(board)
 
@@ -134,6 +119,14 @@ class Generator:
         if self.save_png:
             board2png(board, BAD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + ".png")
             board2png(wrong_board, BAD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + "-wrong.png")
+
+    def save_good_move(self, board, next_board, move, move_number):
+        labels = gen_labels(False, board, move, extended=self.extended_labels)
+        self.result_boards.append(boards_vector(board, next_board, gray_scale=self.gray_scale, posvec=self.posvec))
+        self.result_vector.append(labels)
+        if self.save_png:
+            board2png(board, GOOD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + ".png")
+            board2png(next_board, GOOD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + "-good.png")
 
 
     def book_game(self):
@@ -159,26 +152,16 @@ class Generator:
         for move in game.mainline_moves():
             legal_moves = [g for g in board.legal_moves]
 
-            # if random.random() < SAVE_ILLEGAL_MOVE_PROBABILITY:
-            #     print("[Game {}] Saving illegal move {}".format(self.game_number, move_number))
-            #     self.save_illegal_move(board, legal_moves, move_number)
-
             if random.random() < SAVE_WRONG_MOVE_PROBABILITY:
+                print("[Book {}] Saving wrong move {}".format(self.game_number, move_number))
                 self.save_wrong_move(board, move_number)
-                print("[Game {}] Saving wrong move {}".format(self.game_number, move_number))
 
             next_board = board.copy()
             next_board.push(move)
 
-
             if random.random() < SAVE_LEGAL_MOVE_PROBABILITY:
-                print("[Game {}] Saving correct move {}".format(self.game_number, move_number))
-                labels = gen_labels(False, board, move, extended=self.extended_labels)
-                self.result_boards.append(boards_vector(board, next_board, gray_scale=self.gray_scale, posvec=self.posvec))
-                self.result_vector.append(labels)
-                if self.save_png:
-                    board2png(board, GOOD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + ".png")
-                    board2png(next_board, GOOD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + "-next.png")
+                print("[Book {}] Saving correct move {}".format(self.game_number, move_number))
+                self.save_good_move(board, next_board, move, move_number)
 
             board = next_board
             move_number = move_number + 1
@@ -189,35 +172,23 @@ class Generator:
         if move_number == 0:
             self._create_imgs_dirs()
 
-        # save move to png
-        if self.save_png:
-            board2png(board, GOOD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + ".png")
-
         if board.is_game_over() or (move_number > args.maxmoves):
             print(end_reason(board, move_number))
             return
 
         legal_moves = [g for g in board.legal_moves]
 
-
         if random.random() < SAVE_WRONG_MOVE_PROBABILITY:
+            print("[Random {}] Saving wrong move {}".format(self.game_number, move_number))
             self.save_wrong_move(board, move_number)
-            print("[Random game {}] Saving wrong move {}".format(self.game_number, move_number))
-
-        # if random.random() < SAVE_ILLEGAL_MOVE_PROBABILITY:
-        #     print("[Random game {}] Saving illegal move {}".format(self.game_number, move_number))
-        #     self.save_illegal_move(board, legal_moves, move_number)
 
         next_move = random.choice(legal_moves)
         next_board = board.copy()
         next_board.push_uci(str(next_move))
 
         if random.random() < SAVE_LEGAL_MOVE_PROBABILITY:
-            print("[Random game {}] Saving correct move {}".format(self.game_number, move_number))
-            labels = gen_labels(True, board, next_move, extended=self.extended_labels)
-            self.result_boards.append(boards_vector(board, next_board, gray_scale=self.gray_scale, posvec=self.posvec))
-            self.result_vector.append(labels)
-
+            print("[Random {}] Saving correct move {}".format(self.game_number, move_number))
+            self.save_good_move(board, next_board, next_move, move_number)
 
         self.random_game(next_board, move_number + 1)
 

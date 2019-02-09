@@ -6,8 +6,6 @@ from scipy import misc
 from IPython.display import SVG
 from common.constants import DEFAULT_IMAGE_SIZE, BOOK_GAMES_PATH, BOOK_GAMES_PATH
 
-np.set_printoptions(threshold=np.nan)
-
 # Saves board to png with provided name and size
 def board2png(board, name, size=DEFAULT_IMAGE_SIZE, coordinates=False):
     svg = SVG(chess.svg.board(board=board, size=size, coordinates=coordinates))
