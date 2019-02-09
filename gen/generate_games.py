@@ -121,7 +121,7 @@ class Generator:
             board2png(wrong_board, BAD_GAMES_IMG_PATH + str(self.game_number) + "/" + str(move_number) + "-wrong.png")
 
     def save_good_move(self, board, next_board, move, move_number):
-        labels = gen_labels(False, board, move, extended=self.extended_labels)
+        labels = gen_labels(True, board, move, extended=self.extended_labels)
         self.result_boards.append(boards_vector(board, next_board, gray_scale=self.gray_scale, posvec=self.posvec))
         self.result_vector.append(labels)
         if self.save_png:
